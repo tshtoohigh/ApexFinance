@@ -1,13 +1,11 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Plus, Trash2, Key, User, DollarSign } from 'lucide-react';
+import { Plus, Trash2 } from 'lucide-react';
 import { PageWrapper } from '@/components/layout';
 import { Card, CardHeader, Button, Input, Select } from '@/components/ui';
 import { useFinanceStore, type Account } from '@/stores/useFinanceStore';
 
 export function SettingsPage() {
   const store = useFinanceStore();
-  const navigate = useNavigate();
   const [showAddAccount, setShowAddAccount] = useState(false);
   const [accName, setAccName] = useState('');
   const [accInst, setAccInst] = useState('');
@@ -85,8 +83,18 @@ export function SettingsPage() {
       {/* Danger Zone */}
       <Card className="border-red/20">
         <CardHeader title="Danger Zone" />
-        <Button variant="danger" fullWidth onClick={() => { store.resetAll(); navigate('/onboarding'); }}>
-          Reset All Data & Start Over
+        <Button variant="outline" fullWidth className="mb-2" onClick={() => {
+          localStorage.removeItem('apex-auth');
+          window.location.href = '/login';
+        }}>
+          Log Out
+        </Button>
+        <Button variant="danger" fullWidth onClick={() => {
+          store.resetAll();
+          localStorage.removeItem('apex-auth');
+          window.location.href = '/login';
+        }}>
+          Delete All Data & Log Out
         </Button>
       </Card>
     </PageWrapper>
