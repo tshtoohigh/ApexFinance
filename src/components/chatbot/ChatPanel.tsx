@@ -60,7 +60,7 @@ export function ChatPanel() {
             </div>
             {messages.map((msg) => (
               <MessageBubble key={msg.id} message={msg} />
-            ))}}
+            ))}
             {isLoading && (
               <div className="flex items-center gap-2 text-muted-dark">
                 <Loader2 size={14} className="animate-spin" />
