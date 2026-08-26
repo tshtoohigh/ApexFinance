@@ -70,7 +70,7 @@ export function LoginPage() {
           <Layers size={32} className="text-accent" strokeWidth={1.6} />
         </div>
         <h1 className="text-2xl font-bold tracking-tight">Apex Finance</h1>
-        <p className="mt-1 text-[13px] text-muted-dark">Your money, on autopilot</p>
+        <p className="mt-1 text-[13px] text-muted-dark">Your money, in one view</p>
       </div>
 
       {/* Auth Card */}
@@ -162,7 +162,7 @@ export function LoginPage() {
 
         {/* Privacy note */}
         <p className="mt-6 text-center text-[10px] text-muted-dark">
-          Secured by Supabase. Your financial data is encrypted and private.
+          Your data is encrypted and stored securely via Supabase.
         </p>
       </div>
     </div>

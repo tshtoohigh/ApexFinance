@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { Plus, Trash2, LogOut } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { Plus, Trash2, LogOut, FileText } from 'lucide-react';
 import { PageWrapper } from '@/components/layout';
 import { Card, CardHeader, Button, Input, Select } from '@/components/ui';
 import { useFinanceStore, type Account } from '@/stores/useFinanceStore';
@@ -8,6 +9,7 @@ import { useAuth } from '@/hooks/useAuth';
 export function SettingsPage() {
   const store = useFinanceStore();
   const { user, signOut } = useAuth();
+  const navigate = useNavigate();
   const [showAddAccount, setShowAddAccount] = useState(false);
   const [accName, setAccName] = useState('');
   const [accInst, setAccInst] = useState('');
@@ -64,17 +66,13 @@ export function SettingsPage() {
         <Input label="Monthly Budget" prefix="$" type="number" value={store.monthlyBudget ? store.monthlyBudget.toString() : ''} onChange={(e) => store.setMonthlyBudget(Number(e.target.value))} />
       </Card>
 
-      {/* API Key */}
+      {/* AI Chatbot Info */}
       <Card className="mb-3">
-        <CardHeader title="AI Chatbot" subtitle="OpenRouter API key for AI assistant" />
-        <Input
-          label="API Key"
-          type="password"
-          placeholder="sk-or-v1-..."
-          value={store.openRouterApiKey}
-          onChange={(e) => store.setOpenRouterApiKey(e.target.value)}
-        />
-        <p className="text-[10px] text-muted-dark">Free at <a href="https://openrouter.ai/keys" target="_blank" rel="noreferrer" className="text-accent underline">openrouter.ai/keys</a></p>
+        <CardHeader title="AI Chatbot" subtitle="Powered by OpenRouter (server-side)" />
+        <p className="text-[11px] text-muted-dark">
+          The AI assistant is configured server-side. No API key needed from you — just tap the chat 
+          bubble to start asking questions about your finances.
+        </p>
       </Card>
 
       {/* Accounts */}
@@ -121,6 +119,13 @@ export function SettingsPage() {
             <button onClick={() => store.removeCryptoHolding(h.id)} className="text-muted-dark hover:text-red"><Trash2 size={12} /></button>
           </div>
         ))}
+      </Card>
+
+      {/* Legal */}
+      <Card className="mb-3">
+        <Button variant="outline" fullWidth onClick={() => navigate('/terms')}>
+          <FileText size={14} /> Terms & Disclaimer
+        </Button>
       </Card>
 
       {/* Actions */}

@@ -22,14 +22,10 @@ export function OnboardingPage() {
   // Step 2: Crypto
   const [holdings, setHoldings] = useState<Partial<CryptoHolding>[]>([]);
 
-  // Step 3: API Key
-  const [apiKey, setApiKey] = useState('');
-
   const handleFinish = () => {
     store.setUserName(name);
     store.setMonthlyIncome(Number(income) || 0);
     store.setMonthlyBudget(Number(budget) || 0);
-    store.setOpenRouterApiKey(apiKey);
 
     accounts.forEach((acc) => {
       if (acc.name && acc.balance) {
@@ -168,29 +164,21 @@ export function OnboardingPage() {
 
           <div className="flex gap-2">
             <Button variant="outline" onClick={() => setStep(1)}>Back</Button>
-            <Button fullWidth onClick={() => setStep(3)}>Next <ArrowRight size={14} /></Button>
+            <Button fullWidth onClick={handleFinish}>
+              Launch Apex Finance <ArrowRight size={14} />
+            </Button>
           </div>
         </Card>
       )}
 
-      {/* Step 3: API Key */}
+      {/* Step 3: Finish */}
       {step === 3 && (
         <Card>
-          <h2 className="mb-1 text-base font-semibold">AI Assistant (Optional)</h2>
+          <h2 className="mb-1 text-base font-semibold">You're all set!</h2>
           <p className="mb-4 text-[11px] text-muted-dark">
-            Paste an OpenRouter API key to enable the AI chatbot. Get one free at{' '}
-            <a href="https://openrouter.ai/keys" target="_blank" rel="noreferrer" className="text-accent underline">openrouter.ai/keys</a>
+            Your data will be saved securely. You can always edit your accounts, goals, and settings later.
+            The AI chatbot is available via the chat bubble in the bottom-left corner.
           </p>
-
-          <Input
-            label="OpenRouter API Key"
-            placeholder="sk-or-v1-..."
-            type="password"
-            value={apiKey}
-            onChange={(e) => setApiKey(e.target.value)}
-          />
-
-          <p className="mb-4 text-[10px] text-muted-dark">Your key is stored locally on your device only. Skip if you don't want AI features.</p>
 
           <div className="flex gap-2">
             <Button variant="outline" onClick={() => setStep(2)}>Back</Button>

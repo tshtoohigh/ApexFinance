@@ -1,4 +1,5 @@
 import { useState, useCallback } from 'react';
+import { supabase } from '@/lib/supabase';
 import { useFinanceStore } from '@/stores/useFinanceStore';
 
 export interface ChatMessage {
@@ -9,21 +10,20 @@ export interface ChatMessage {
 }
 
 /**
- * Chat hook that calls OpenRouter API for AI financial advice.
- * User must set their own API key in settings.
+ * Chat hook that calls the Supabase Edge Function (which proxies to OpenRouter).
+ * API key is stored server-side — never exposed to the client.
  */
 export function useChatbot() {
   const [messages, setMessages] = useState<ChatMessage[]>([
     {
       id: 'welcome',
       role: 'assistant',
-      content: "Hi! I'm your Apex Finance assistant. I can help you make financial decisions, analyze your portfolio, suggest savings strategies, or answer money questions. What can I help with?",
+      content: "Hi! I'm your Apex Finance assistant. I can help you understand your finances, suggest strategies, or answer money questions. What can I help with?",
       timestamp: Date.now(),
     },
   ]);
   const [isLoading, setIsLoading] = useState(false);
 
-  const apiKey = useFinanceStore((s) => s.openRouterApiKey);
   const accounts = useFinanceStore((s) => s.accounts);
   const monthlyIncome = useFinanceStore((s) => s.monthlyIncome);
   const monthlyBudget = useFinanceStore((s) => s.monthlyBudget);
@@ -31,23 +31,19 @@ export function useChatbot() {
   const goals = useFinanceStore((s) => s.goals);
   const cryptoHoldings = useFinanceStore((s) => s.cryptoHoldings);
 
-  // Build context about user's finances for the AI
-  const buildSystemPrompt = () => {
+  // Build financial context string for the AI
+  const buildFinancialContext = () => {
     const totalBalance = accounts.reduce((sum, a) => sum + a.balance, 0);
     const totalSubs = subscriptions.reduce((sum, s) => sum + s.amount, 0);
 
-    return `You are a helpful personal finance assistant for the Apex Finance app. Be concise, practical, and actionable. Use plain language, not jargon.
-
-The user's financial snapshot:
+    return `The user's financial snapshot:
 - Total account balances: $${totalBalance.toLocaleString()}
 - Monthly income: $${monthlyIncome.toLocaleString()}
 - Monthly budget: $${monthlyBudget.toLocaleString()}
 - Monthly subscriptions: $${totalSubs.toFixed(2)}
-- Accounts: ${accounts.map(a => `${a.name} (${a.type}): $${a.balance.toLocaleString()}`).join(', ') || 'None added yet'}
+- Accounts: ${accounts.map(a => `${a.name} (${a.type}): $${a.balance.toLocaleString()}${a.apy ? ` @ ${a.apy}% APY` : ''}`).join(', ') || 'None added yet'}
 - Crypto holdings: ${cryptoHoldings.map(h => `${h.amount} ${h.symbol}`).join(', ') || 'None'}
-- Goals: ${goals.map(g => `${g.name}: $${g.current.toLocaleString()}/$${g.target.toLocaleString()}`).join(', ') || 'None set'}
-
-Give short, actionable answers (2-4 sentences max). If asked about specific actions, give concrete next steps. Never recommend specific stocks or give investment advice that could be considered professional financial advice — frame suggestions as educational.`;
+- Goals: ${goals.map(g => `${g.name}: $${g.current.toLocaleString()}/$${g.target.toLocaleString()}`).join(', ') || 'None set'}`;
   };
 
   const sendMessage = useCallback(
@@ -64,44 +60,31 @@ Give short, actionable answers (2-4 sentences max). If asked about specific acti
       setMessages((prev) => [...prev, userMsg]);
       setIsLoading(true);
 
-      if (!apiKey) {
-        const noKeyMsg: ChatMessage = {
-          id: (Date.now() + 1).toString(),
-          role: 'assistant',
-          content: "I need an OpenRouter API key to respond. Go to Settings (tap the gear icon) and paste your key from openrouter.ai/keys — it's free to sign up!",
-          timestamp: Date.now(),
-        };
-        setMessages((prev) => [...prev, noKeyMsg]);
-        setIsLoading(false);
-        return;
-      }
-
       try {
-        const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${apiKey}`,
-          },
-          body: JSON.stringify({
-            model: 'meta-llama/llama-3.1-8b-instruct:free',
-            messages: [
-              { role: 'system', content: buildSystemPrompt() },
-              ...messages.slice(-10).map((m) => ({ role: m.role, content: m.content })),
-              { role: 'user', content: content.trim() },
-            ],
-            max_tokens: 300,
-            temperature: 0.7,
-          }),
-        });
+        // Get current session for auth header
+        const { data: { session } } = await supabase.auth.getSession();
 
-        if (!response.ok) {
-          throw new Error(`API error: ${response.status}`);
+        if (!session) {
+          throw new Error('Not authenticated. Please log in again.');
         }
 
-        const data = await response.json();
-        const assistantContent =
-          data.choices?.[0]?.message?.content || "Sorry, I couldn't process that. Try again.";
+        // Call the Supabase Edge Function
+        const { data, error } = await supabase.functions.invoke('chat', {
+          body: {
+            messages: messages
+              .filter((m) => m.id !== 'welcome')
+              .slice(-10)
+              .map((m) => ({ role: m.role, content: m.content }))
+              .concat([{ role: 'user', content: content.trim() }]),
+            financialContext: buildFinancialContext(),
+          },
+        });
+
+        if (error) {
+          throw new Error(error.message || 'Failed to get response');
+        }
+
+        const assistantContent = data?.content || "Sorry, I couldn't process that. Try again.";
 
         const assistantMsg: ChatMessage = {
           id: (Date.now() + 1).toString(),
@@ -115,7 +98,7 @@ Give short, actionable answers (2-4 sentences max). If asked about specific acti
         const errorMsg: ChatMessage = {
           id: (Date.now() + 1).toString(),
           role: 'assistant',
-          content: `Error: ${err instanceof Error ? err.message : 'Something went wrong'}. Check your API key in Settings.`,
+          content: `⚠️ ${err instanceof Error ? err.message : 'Something went wrong. Please try again.'}`,
           timestamp: Date.now(),
         };
         setMessages((prev) => [...prev, errorMsg]);
@@ -123,7 +106,7 @@ Give short, actionable answers (2-4 sentences max). If asked about specific acti
         setIsLoading(false);
       }
     },
-    [apiKey, messages, accounts, monthlyIncome, monthlyBudget, subscriptions, goals, cryptoHoldings]
+    [messages, accounts, monthlyIncome, monthlyBudget, subscriptions, goals, cryptoHoldings]
   );
 
   return { messages, sendMessage, isLoading };

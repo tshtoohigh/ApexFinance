@@ -58,8 +58,7 @@ The chatbot sends your financial snapshot (balances, income, goals) as context t
 
 ## Privacy
 
-- **All data is local.** Nothing is sent to any server except:
-  - CoinGecko (fetches public crypto prices, no user data sent)
-  - OpenRouter (sends financial summary ONLY when you chat — uses YOUR key)
-- No analytics, no tracking, no backend
-- Delete everything anytime from Settings → "Reset All Data"
+- Your data is encrypted and stored securely via Supabase
+- AI chatbot sends a financial summary to OpenRouter only during active chat
+- Live crypto prices fetched from CoinGecko (no personal data sent)
+- Delete everything anytime from Settings → "Delete All Data"
