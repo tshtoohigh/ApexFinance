@@ -1,7 +1,9 @@
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { NavBar } from '@/components/layout';
 import { ChatPanel } from '@/components/chatbot/ChatPanel';
+import { useAuth } from '@/hooks/useAuth';
 import { useFinanceStore } from '@/stores/useFinanceStore';
+import { Loader2 } from 'lucide-react';
 
 import { LoginPage } from '@/pages/Login';
 import { OnboardingPage } from '@/pages/Onboarding';
@@ -12,26 +14,24 @@ import { GoalsPage } from '@/pages/Goals';
 import { RadarPage } from '@/pages/Radar';
 import { SettingsPage } from '@/pages/Settings';
 
-function isLoggedIn() {
-  try {
-    const auth = localStorage.getItem('apex-auth');
-    if (!auth) return false;
-    return JSON.parse(auth).loggedIn === true;
-  } catch {
-    return false;
-  }
-}
-
 export function App() {
+  const { user, loading } = useAuth();
   const hasOnboarded = useFinanceStore((s) => s.hasOnboarded);
-  const loggedIn = isLoggedIn();
+
+  // Show loading spinner while checking auth
+  if (loading) {
+    return (
+      <div className="flex min-h-screen items-center justify-center">
+        <Loader2 size={24} className="animate-spin text-accent" />
+      </div>
+    );
+  }
 
   // Step 1: Not logged in → show login/signup
-  if (!loggedIn) {
+  if (!user) {
     return (
       <Routes>
-        <Route path="/login" element={<LoginPage />} />
-        <Route path="*" element={<Navigate to="/login" replace />} />
+        <Route path="*" element={<LoginPage />} />
       </Routes>
     );
   }

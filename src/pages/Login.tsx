@@ -1,20 +1,23 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Layers, Mail, Lock, Eye, EyeOff } from 'lucide-react';
+import { Layers, Eye, EyeOff, Loader2 } from 'lucide-react';
 import { Button, Input } from '@/components/ui';
-import { useFinanceStore } from '@/stores/useFinanceStore';
+import { useAuth } from '@/hooks/useAuth';
 
 export function LoginPage() {
-  const navigate = useNavigate();
-  const store = useFinanceStore();
-  const [mode, setMode] = useState<'login' | 'signup'>('login');
+  const { signIn, signUp, signInWithGoogle } = useAuth();
+  const [mode, setMode] = useState<'login' | 'signup'>('signup');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [name, setName] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [successMessage, setSuccessMessage] = useState('');
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
+    setError('');
+    setSuccessMessage('');
+
     // Validation
     if (!email || !password) {
       setError('Please fill in all fields');
@@ -33,31 +36,29 @@ export function LoginPage() {
       return;
     }
 
-    // Save auth locally (no real backend — localStorage only)
-    localStorage.setItem('apex-auth', JSON.stringify({ email, loggedIn: true }));
-
-    if (mode === 'signup') {
-      store.setUserName(name);
-      navigate('/onboarding');
-    } else {
-      // If returning user who already onboarded, go straight to dashboard
-      if (store.hasOnboarded) {
-        navigate('/');
+    setLoading(true);
+    try {
+      if (mode === 'signup') {
+        await signUp(email, password, name);
+        setSuccessMessage('Account created! Check your email to confirm, then sign in.');
+        setMode('login');
       } else {
-        navigate('/onboarding');
+        await signIn(email, password);
+        // Auth state change will automatically redirect via App.tsx
       }
+    } catch (err: any) {
+      setError(err.message || 'Something went wrong');
+    } finally {
+      setLoading(false);
     }
   };
 
-  const handleGoogleSignIn = () => {
-    // In a real app this would use Firebase/Supabase Google OAuth
-    // For now, simulate it
-    localStorage.setItem('apex-auth', JSON.stringify({ email: 'user@gmail.com', loggedIn: true, provider: 'google' }));
-    store.setUserName('User');
-    if (store.hasOnboarded) {
-      navigate('/');
-    } else {
-      navigate('/onboarding');
+  const handleGoogleSignIn = async () => {
+    setError('');
+    try {
+      await signInWithGoogle();
+    } catch (err: any) {
+      setError(err.message || 'Google sign-in failed');
     }
   };
 
@@ -134,11 +135,17 @@ export function LoginPage() {
 
         {/* Error */}
         {error && (
-          <p className="mt-2 text-[11px] text-red">{error}</p>
+          <p className="mt-2 rounded-lg bg-red-dim p-2.5 text-[11px] text-red">{error}</p>
+        )}
+
+        {/* Success */}
+        {successMessage && (
+          <p className="mt-2 rounded-lg bg-green-dim p-2.5 text-[11px] text-green">{successMessage}</p>
         )}
 
         {/* Submit */}
-        <Button fullWidth size="lg" onClick={handleSubmit} className="mt-4">
+        <Button fullWidth size="lg" onClick={handleSubmit} disabled={loading} className="mt-4">
+          {loading && <Loader2 size={14} className="animate-spin" />}
           {mode === 'login' ? 'Sign In' : 'Create Account'}
         </Button>
 
@@ -146,7 +153,7 @@ export function LoginPage() {
         <p className="mt-4 text-center text-xs text-muted-dark">
           {mode === 'login' ? "Don't have an account?" : 'Already have an account?'}{' '}
           <button
-            onClick={() => { setMode(mode === 'login' ? 'signup' : 'login'); setError(''); }}
+            onClick={() => { setMode(mode === 'login' ? 'signup' : 'login'); setError(''); setSuccessMessage(''); }}
             className="font-semibold text-accent hover:underline"
           >
             {mode === 'login' ? 'Sign Up' : 'Sign In'}
@@ -155,7 +162,7 @@ export function LoginPage() {
 
         {/* Privacy note */}
         <p className="mt-6 text-center text-[10px] text-muted-dark">
-          All data is stored locally on your device. No server, no tracking.
+          Secured by Supabase. Your financial data is encrypted and private.
         </p>
       </div>
     </div>
