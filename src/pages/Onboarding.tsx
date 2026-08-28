@@ -22,35 +22,47 @@ export function OnboardingPage() {
   // Step 2: Crypto
   const [holdings, setHoldings] = useState<Partial<CryptoHolding>[]>([]);
 
-  const handleFinish = () => {
-    store.setUserName(name);
-    store.setMonthlyIncome(Number(income) || 0);
-    store.setMonthlyBudget(Number(budget) || 0);
+  const handleFinish = async () => {
+    try {
+      // Save profile data
+      await store.setUserName(name);
+      await store.setMonthlyIncome(Number(income) || 0);
+      await store.setMonthlyBudget(Number(budget) || 0);
 
-    accounts.forEach((acc) => {
-      if (acc.name && acc.balance) {
-        store.addAccount({
-          id: crypto.randomUUID(),
-          name: acc.name!,
-          institution: acc.institution || '',
-          type: acc.type as Account['type'],
-          balance: Number(acc.balance),
-          apy: acc.apy ? Number(acc.apy) : undefined,
-        });
+      // Save accounts
+      for (const acc of accounts) {
+        if (acc.name && acc.balance) {
+          await store.addAccount({
+            id: crypto.randomUUID(),
+            name: acc.name!,
+            institution: acc.institution || '',
+            type: acc.type as Account['type'],
+            balance: Number(acc.balance),
+            apy: acc.apy ? Number(acc.apy) : undefined,
+          });
+        }
       }
-    });
 
-    holdings.forEach((h) => {
-      if (h.symbol && h.amount) {
-        store.addCryptoHolding({
-          id: crypto.randomUUID(),
-          symbol: h.symbol!,
-          amount: Number(h.amount),
-        });
+      // Save crypto holdings
+      for (const h of holdings) {
+        if (h.symbol && h.amount) {
+          await store.addCryptoHolding({
+            id: crypto.randomUUID(),
+            symbol: h.symbol!,
+            amount: Number(h.amount),
+          });
+        }
       }
-    });
 
-    store.setOnboarded(true);
+      // Mark onboarded (this is the critical one)
+      await store.setOnboarded(true);
+    } catch (err) {
+      console.error('Onboarding save error:', err);
+      // Even if Supabase fails, force the local state so user can proceed
+      useFinanceStore.setState({ hasOnboarded: true });
+    }
+
+    // Always navigate regardless of save success
     navigate('/');
   };
 
