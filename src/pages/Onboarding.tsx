@@ -81,7 +81,7 @@ export function OnboardingPage() {
 
       {/* Progress */}
       <div className="mb-6 flex gap-1.5">
-        {[0, 1, 2, 3].map((i) => (
+        {[0, 1, 2].map((i) => (
           <div key={i} className={`h-1 flex-1 rounded-full ${i <= step ? 'bg-accent' : 'bg-border'}`} />
         ))}
       </div>
@@ -183,23 +183,6 @@ export function OnboardingPage() {
         </Card>
       )}
 
-      {/* Step 3: Finish */}
-      {step === 3 && (
-        <Card>
-          <h2 className="mb-1 text-base font-semibold">You're all set!</h2>
-          <p className="mb-4 text-[11px] text-muted-dark">
-            Your data will be saved securely. You can always edit your accounts, goals, and settings later.
-            The AI chatbot is available via the chat bubble in the bottom-left corner.
-          </p>
-
-          <div className="flex gap-2">
-            <Button variant="outline" onClick={() => setStep(2)}>Back</Button>
-            <Button fullWidth onClick={handleFinish}>
-              Launch Apex Finance <ArrowRight size={14} />
-            </Button>
-          </div>
-        </Card>
-      )}
     </div>
   );
 }

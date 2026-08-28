@@ -113,12 +113,25 @@ export const useFinanceStore = create<FinanceState>()((set, get) => ({
   hydrateFromSupabase: async (userId: string) => {
     set({ isLoading: true, error: null });
     try {
-      // Fetch profile
-      const { data: profile } = await supabase
+      // Fetch profile (might not exist if tables haven't been created)
+      const { data: profile, error: profileError } = await supabase
         .from('profiles')
         .select('*')
         .eq('id', userId)
         .single();
+
+      // If profiles table doesn't exist, just skip DB hydration gracefully
+      if (profileError && profileError.code === '42P01') {
+        console.warn('Supabase tables not yet created. Run schema.sql in SQL Editor.');
+        set({ isLoading: false, hasOnboarded: false });
+        return;
+      }
+
+      // If profile doesn't exist yet (new user), that's fine
+      if (profileError && profileError.code === 'PGRST116') {
+        set({ isLoading: false, hasOnboarded: false });
+        return;
+      }
 
       // Fetch accounts
       const { data: accounts } = await supabase
@@ -183,7 +196,8 @@ export const useFinanceStore = create<FinanceState>()((set, get) => ({
       });
     } catch (err: any) {
       console.error('Failed to hydrate from Supabase:', err);
-      set({ isLoading: false, error: err.message || 'Failed to load data' });
+      // Don't block the app — just let them use it without persistence
+      set({ isLoading: false, error: null, hasOnboarded: false });
     }
   },
 
