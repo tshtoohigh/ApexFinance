@@ -12,7 +12,7 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 }
 
 const variants: Record<Variant, string> = {
-  primary: 'bg-accent text-bg hover:bg-accent/90',
+  primary: 'bg-accent text-bg hover:bg-accent/90 shadow-[0_2px_12px_rgba(0,240,255,0.25)] hover:shadow-[0_4px_20px_rgba(0,240,255,0.35)]',
   ghost: 'bg-accent-dim text-accent hover:bg-accent-mid',
   outline: 'border border-border text-muted hover:border-accent hover:text-accent',
   danger: 'bg-red-dim text-red hover:bg-red/20',
@@ -28,7 +28,7 @@ export function Button({ variant = 'primary', size = 'md', fullWidth, className,
   return (
     <button
       className={cn(
-        'inline-flex items-center justify-center gap-1.5 rounded-lg font-semibold transition-all duration-150 hover:-translate-y-px active:translate-y-0',
+        'inline-flex items-center justify-center gap-1.5 rounded-xl font-semibold transition-all duration-200 hover:-translate-y-0.5 active:translate-y-0 disabled:pointer-events-none disabled:opacity-50',
         variants[variant], sizes[size],
         fullWidth && 'w-full',
         className
