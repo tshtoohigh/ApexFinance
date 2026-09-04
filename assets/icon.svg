@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024">
+  <!-- Background -->
+  <rect width="1024" height="1024" fill="#0A0F1D"/>
+  <rect x="64" y="64" width="896" height="896" rx="200" fill="#141C2E"/>
+  <rect x="64" y="64" width="896" height="896" rx="200" fill="none" stroke="#00F0FF" stroke-width="6" stroke-opacity="0.25"/>
+
+  <!-- Glow behind logo -->
+  <circle cx="512" cy="512" r="260" fill="#00F0FF" fill-opacity="0.06"/>
+
+  <!-- Layered "stack" logo (matches the app's Layers icon) -->
+  <g transform="translate(512, 512)" stroke="#00F0FF" stroke-width="26" fill="none" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M0 -180L-200 -70L0 40L200 -70L0 -180Z"/>
+    <path d="M-200 70L0 180L200 70"/>
+    <path d="M-200 0L0 110L200 0"/>
+  </g>
+</svg>

@@ -26,9 +26,15 @@ npx cap add android
 # 5. Copy the web build into the Android project
 npx cap sync
 
-# 6. Open the project in Android Studio
+# 6. (Optional) Generate the custom app icon — see assets/README.md
+#    First convert assets/icon.svg to assets/icon.png (1024x1024), then:
+npx @capacitor/assets generate --android
+
+# 7. Open the project in Android Studio
 npx cap open android
 ```
+
+> For the custom Apex Finance app icon, follow `assets/README.md`. If you skip it, the app uses Capacitor's default icon.
 
 ## In Android Studio
 
