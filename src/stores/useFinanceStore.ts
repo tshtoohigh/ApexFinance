@@ -37,6 +37,20 @@ export interface CryptoHolding {
   amount: number;
 }
 
+export interface Transaction {
+  id: string;
+  description: string;
+  amount: number; // positive = income, negative = expense
+  category: string;
+  date: string; // ISO string
+}
+
+export interface NetWorthSnapshot {
+  id: string;
+  value: number;
+  date: string; // ISO string
+}
+
 export interface FinanceState {
   // Profile
   hasOnboarded: boolean;
@@ -49,6 +63,8 @@ export interface FinanceState {
   cryptoHoldings: CryptoHolding[];
   subscriptions: Subscription[];
   goals: Goal[];
+  transactions: Transaction[];
+  netWorthHistory: NetWorthSnapshot[];
 
   // Loading state
   isLoading: boolean;
@@ -83,6 +99,13 @@ export interface FinanceState {
   updateGoal: (id: string, updates: Partial<Goal>) => void;
   removeGoal: (id: string) => void;
 
+  // Actions - Transactions
+  addTransaction: (tx: Transaction) => void;
+  removeTransaction: (id: string) => void;
+
+  // Actions - Net worth history
+  recordNetWorthSnapshot: (value: number) => void;
+
   // Actions - Data sync
   hydrateFromSupabase: (userId: string) => Promise<void>;
   resetAll: () => void;
@@ -99,6 +122,8 @@ export const useFinanceStore = create<FinanceState>()((set, get) => ({
   cryptoHoldings: [],
   subscriptions: [],
   goals: [],
+  transactions: [],
+  netWorthHistory: [],
   isLoading: true,
   error: null,
   openRouterApiKey: localStorage.getItem('apex-openrouter-key') || '',
@@ -157,6 +182,20 @@ export const useFinanceStore = create<FinanceState>()((set, get) => ({
         .select('*')
         .eq('user_id', userId);
 
+      // Fetch transactions
+      const { data: transactions } = await supabase
+        .from('transactions')
+        .select('*')
+        .eq('user_id', userId)
+        .order('date', { ascending: false });
+
+      // Fetch net worth history
+      const { data: nwHistory } = await supabase
+        .from('net_worth_history')
+        .select('*')
+        .eq('user_id', userId)
+        .order('date', { ascending: true });
+
       set({
         hasOnboarded: profile?.has_onboarded ?? false,
         userName: profile?.user_name ?? '',
@@ -191,6 +230,18 @@ export const useFinanceStore = create<FinanceState>()((set, get) => ({
           current: Number(g.current),
           deadline: g.deadline,
           monthlyContribution: Number(g.monthly_contribution),
+        })),
+        transactions: (transactions ?? []).map((t) => ({
+          id: t.id,
+          description: t.description,
+          amount: Number(t.amount),
+          category: t.category,
+          date: t.date,
+        })),
+        netWorthHistory: (nwHistory ?? []).map((n) => ({
+          id: n.id,
+          value: Number(n.value),
+          date: n.date,
         })),
         isLoading: false,
       });
@@ -354,6 +405,61 @@ export const useFinanceStore = create<FinanceState>()((set, get) => ({
     await supabase.from('goals').delete().eq('id', id);
   },
 
+  // ─── Transaction Actions ─────────────────────────────────────────────────
+
+  addTransaction: async (tx) => {
+    set((s) => ({ transactions: [tx, ...s.transactions] }));
+    const { data: { user } } = await supabase.auth.getUser();
+    if (user) {
+      await supabase.from('transactions').insert({
+        id: tx.id,
+        user_id: user.id,
+        description: tx.description,
+        amount: tx.amount,
+        category: tx.category,
+        date: tx.date,
+      });
+    }
+  },
+
+  removeTransaction: async (id) => {
+    set((s) => ({ transactions: s.transactions.filter((t) => t.id !== id) }));
+    await supabase.from('transactions').delete().eq('id', id);
+  },
+
+  // ─── Net Worth History ───────────────────────────────────────────────────
+
+  recordNetWorthSnapshot: async (value) => {
+    const today = new Date().toISOString().slice(0, 10); // YYYY-MM-DD
+    const existing = get().netWorthHistory;
+
+    // Only one snapshot per day — replace today's if it exists
+    const withoutToday = existing.filter((s) => s.date.slice(0, 10) !== today);
+    const snapshot: NetWorthSnapshot = {
+      id: crypto.randomUUID(),
+      value,
+      date: new Date().toISOString(),
+    };
+    set({ netWorthHistory: [...withoutToday, snapshot] });
+
+    const { data: { user } } = await supabase.auth.getUser();
+    if (user) {
+      // Delete today's existing row, then insert fresh
+      await supabase
+        .from('net_worth_history')
+        .delete()
+        .eq('user_id', user.id)
+        .gte('date', `${today}T00:00:00`)
+        .lte('date', `${today}T23:59:59`);
+      await supabase.from('net_worth_history').insert({
+        id: snapshot.id,
+        user_id: user.id,
+        value: snapshot.value,
+        date: snapshot.date,
+      });
+    }
+  },
+
   // ─── Reset ───────────────────────────────────────────────────────────────
 
   resetAll: () => {
@@ -366,6 +472,8 @@ export const useFinanceStore = create<FinanceState>()((set, get) => ({
       cryptoHoldings: [],
       subscriptions: [],
       goals: [],
+      transactions: [],
+      netWorthHistory: [],
       isLoading: false,
       error: null,
     });

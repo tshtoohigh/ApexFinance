@@ -1,14 +1,14 @@
 import { useLocation, useNavigate } from 'react-router-dom';
-import { Home, TrendingUp, Receipt, Target, Shield, Settings } from 'lucide-react';
+import { Home, ArrowLeftRight, Receipt, Target, Shield, Settings } from 'lucide-react';
 import { cn } from '@/lib/cn';
 
 const NAV = [
   { key: '/', label: 'Home', icon: Home },
-  { key: '/yield', label: 'Yield', icon: TrendingUp },
+  { key: '/transactions', label: 'Activity', icon: ArrowLeftRight },
   { key: '/bills', label: 'Bills', icon: Receipt },
   { key: '/goals', label: 'Goals', icon: Target },
   { key: '/radar', label: 'Radar', icon: Shield },
-  { key: '/settings', label: 'Settings', icon: Settings },
+  { key: '/settings', label: 'More', icon: Settings },
 ];
 
 export function NavBar() {

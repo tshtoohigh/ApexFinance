@@ -15,6 +15,7 @@ import { GoalsPage } from '@/pages/Goals';
 import { RadarPage } from '@/pages/Radar';
 import { SettingsPage } from '@/pages/Settings';
 import { TermsPage } from '@/pages/Terms';
+import { TransactionsPage } from '@/pages/Transactions';
 
 export function App() {
   const { user, loading: authLoading } = useAuth();
@@ -80,6 +81,7 @@ export function App() {
       <Routes>
         <Route path="/" element={<DashboardPage />} />
         <Route path="/yield" element={<YieldPage />} />
+        <Route path="/transactions" element={<TransactionsPage />} />
         <Route path="/bills" element={<BillsPage />} />
         <Route path="/goals" element={<GoalsPage />} />
         <Route path="/radar" element={<RadarPage />} />
