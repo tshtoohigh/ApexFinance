@@ -1,14 +1,17 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Wallet, RefreshCw, Info, X } from 'lucide-react';
 import { PageWrapper } from '@/components/layout';
 import { Card, CardHeader, Badge } from '@/components/ui';
+import { NetWorthChart } from '@/components/dashboard/NetWorthChart';
+import { SkeletonRow } from '@/components/ui';
 import { useFinanceStore } from '@/stores/useFinanceStore';
 import { useCryptoPrices } from '@/hooks/useCryptoPrices';
 import { computeDashboardSummary } from '@/lib/dashboard-engine';
+import { formatCurrency, formatCompact } from '@/lib/format';
 import { cn } from '@/lib/cn';
 
 export function DashboardPage() {
-  const { accounts, cryptoHoldings, subscriptions, goals, monthlyIncome, monthlyBudget, userName } = useFinanceStore();
+  const { accounts, cryptoHoldings, subscriptions, goals, monthlyIncome, monthlyBudget, userName, recordNetWorthSnapshot } = useFinanceStore();
   const { prices, loading: cryptoLoading } = useCryptoPrices();
 
   // Build price map
@@ -22,6 +25,15 @@ export function DashboardPage() {
   );
 
   const [showFormula, setShowFormula] = useState(false);
+
+  // Record a daily net-worth snapshot once crypto prices have loaded and there's data.
+  // recordNetWorthSnapshot dedupes to one entry per day.
+  useEffect(() => {
+    if (!cryptoLoading && summary.netWorth > 0) {
+      recordNetWorthSnapshot(summary.netWorth);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [cryptoLoading, summary.netWorth]);
 
   return (
     <PageWrapper>
@@ -40,12 +52,12 @@ export function DashboardPage() {
       <Card gradient className="mb-3">
         <p className="text-[9px] font-semibold uppercase tracking-wider text-muted-dark">Net Worth</p>
         <p className="mt-1 font-mono text-[32px] font-bold leading-none">
-          ${summary.netWorth.toLocaleString(undefined, { maximumFractionDigits: 0 })}
+          {formatCurrency(summary.netWorth)}
         </p>
         <div className="mt-3 flex gap-4">
-          <MiniStat label="Income/mo" value={`$${summary.monthlyIncome.toLocaleString()}`} color="text-white" />
-          <MiniStat label="Budget/mo" value={`$${summary.monthlyBudget.toLocaleString()}`} color="text-muted" />
-          <MiniStat label="Crypto" value={`$${summary.cryptoTotal.toLocaleString(undefined, { maximumFractionDigits: 0 })}`} color="text-purple" />
+          <MiniStat label="Income/mo" value={formatCurrency(summary.monthlyIncome)} color="text-white" />
+          <MiniStat label="Budget/mo" value={formatCurrency(summary.monthlyBudget)} color="text-muted" />
+          <MiniStat label="Crypto" value={formatCompact(summary.cryptoTotal)} color="text-purple" />
         </div>
       </Card>
 
@@ -112,6 +124,9 @@ export function DashboardPage() {
         )}
       </div>
 
+      {/* Net Worth History Chart */}
+      <NetWorthChart />
+
       {/* Accounts */}
       <Card className="mb-3">
         <CardHeader title="Accounts" subtitle={accounts.length > 0 ? `${accounts.length} linked` : 'None yet'} />
@@ -141,28 +156,30 @@ export function DashboardPage() {
             subtitle={cryptoLoading ? 'Fetching prices...' : 'CoinGecko • Updates every 60s'}
             action={<RefreshCw size={12} className={cn('text-muted-dark', cryptoLoading && 'animate-spin')} />}
           />
-          {cryptoHoldings.map((h) => {
-            const price = prices[h.symbol];
-            const value = price ? h.amount * price.price : 0;
-            return (
-              <div key={h.id} className="flex items-center border-b border-border py-2.5 last:border-b-0">
-                <div className="flex-1 min-w-0">
-                  <p className="text-[13px] font-medium text-white">{h.symbol}</p>
-                  <p className="text-[10px] text-muted-dark">
-                    {h.amount} × ${price?.price?.toLocaleString() || '...'}{' '}
-                    {price && (
-                      <span className={price.change24h >= 0 ? 'text-green' : 'text-red'}>
-                        ({price.change24h >= 0 ? '+' : ''}{price.change24h.toFixed(1)}%)
-                      </span>
-                    )}
-                  </p>
-                </div>
-                <p className="font-mono text-[13px] font-semibold text-white">
-                  ${value.toLocaleString(undefined, { maximumFractionDigits: 0 })}
-                </p>
-              </div>
-            );
-          })}
+          {cryptoLoading && Object.keys(prices).length === 0
+            ? cryptoHoldings.map((h) => <SkeletonRow key={h.id} />)
+            : cryptoHoldings.map((h) => {
+                const price = prices[h.symbol];
+                const value = price ? h.amount * price.price : 0;
+                return (
+                  <div key={h.id} className="flex items-center border-b border-border py-2.5 last:border-b-0">
+                    <div className="flex-1 min-w-0">
+                      <p className="text-[13px] font-medium text-white">{h.symbol}</p>
+                      <p className="text-[10px] text-muted-dark">
+                        {h.amount} × ${price?.price?.toLocaleString() || '...'}{' '}
+                        {price && (
+                          <span className={price.change24h >= 0 ? 'text-green' : 'text-red'}>
+                            ({price.change24h >= 0 ? '+' : ''}{price.change24h.toFixed(1)}%)
+                          </span>
+                        )}
+                      </p>
+                    </div>
+                    <p className="font-mono text-[13px] font-semibold text-white">
+                      ${value.toLocaleString(undefined, { maximumFractionDigits: 0 })}
+                    </p>
+                  </div>
+                );
+              })}
         </Card>
       )}
     </PageWrapper>

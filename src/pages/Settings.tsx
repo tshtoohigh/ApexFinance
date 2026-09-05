@@ -1,10 +1,11 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Plus, Trash2, LogOut, FileText } from 'lucide-react';
+import { Plus, Trash2, LogOut, FileText, TrendingUp } from 'lucide-react';
 import { PageWrapper } from '@/components/layout';
 import { Card, CardHeader, Button, Input, Select } from '@/components/ui';
 import { useFinanceStore, type Account } from '@/stores/useFinanceStore';
 import { useAuth } from '@/hooks/useAuth';
+import { AccountRow } from '@/components/accounts/AccountRow';
 
 export function SettingsPage() {
   const store = useFinanceStore();
@@ -99,11 +100,7 @@ export function SettingsPage() {
         )}
 
         {store.accounts.map((acc) => (
-          <div key={acc.id} className="flex items-center border-b border-border py-2.5 last:border-b-0">
-            <div className="flex-1"><p className="text-xs text-white">{acc.name}</p><p className="text-[10px] text-muted-dark">{acc.institution} • {acc.type}</p></div>
-            <p className="px-2 font-mono text-xs text-white">${acc.balance.toLocaleString()}</p>
-            <button onClick={() => store.removeAccount(acc.id)} className="text-muted-dark hover:text-red"><Trash2 size={12} /></button>
-          </div>
+          <AccountRow key={acc.id} account={acc} />
         ))}
       </Card>
 
@@ -121,8 +118,12 @@ export function SettingsPage() {
         ))}
       </Card>
 
-      {/* Legal */}
+      {/* More Tools */}
       <Card className="mb-3">
+        <CardHeader title="More Tools" />
+        <Button variant="outline" fullWidth className="mb-2" onClick={() => navigate('/yield')}>
+          <TrendingUp size={14} /> Yield Optimizer
+        </Button>
         <Button variant="outline" fullWidth onClick={() => navigate('/terms')}>
           <FileText size={14} /> Terms & Disclaimer
         </Button>

@@ -64,6 +64,25 @@ CREATE TABLE IF NOT EXISTS public.goals (
   updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 
+-- Transactions (v1.1) — logged income + expenses
+CREATE TABLE IF NOT EXISTS public.transactions (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE NOT NULL,
+  description TEXT NOT NULL,
+  amount NUMERIC DEFAULT 0,          -- positive = income, negative = expense
+  category TEXT DEFAULT 'Other',
+  date TIMESTAMPTZ DEFAULT NOW(),
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- Net Worth History (v1.1) — one snapshot per day
+CREATE TABLE IF NOT EXISTS public.net_worth_history (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE NOT NULL,
+  value NUMERIC DEFAULT 0,
+  date TIMESTAMPTZ DEFAULT NOW()
+);
+
 -- ============================================================
 -- Row Level Security (RLS) Policies
 -- Each user can only read/write their own data
@@ -74,6 +93,8 @@ ALTER TABLE public.accounts ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.crypto_holdings ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.subscriptions ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.goals ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.transactions ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.net_worth_history ENABLE ROW LEVEL SECURITY;
 
 -- Profiles: users can only access their own profile
 CREATE POLICY "Users can view own profile" ON public.profiles FOR SELECT USING (auth.uid() = id);
@@ -103,6 +124,18 @@ CREATE POLICY "Users can view own goals" ON public.goals FOR SELECT USING (auth.
 CREATE POLICY "Users can insert own goals" ON public.goals FOR INSERT WITH CHECK (auth.uid() = user_id);
 CREATE POLICY "Users can update own goals" ON public.goals FOR UPDATE USING (auth.uid() = user_id);
 CREATE POLICY "Users can delete own goals" ON public.goals FOR DELETE USING (auth.uid() = user_id);
+
+-- Transactions (v1.1)
+CREATE POLICY "own_tx_select" ON public.transactions FOR SELECT USING (auth.uid() = user_id);
+CREATE POLICY "own_tx_insert" ON public.transactions FOR INSERT WITH CHECK (auth.uid() = user_id);
+CREATE POLICY "own_tx_update" ON public.transactions FOR UPDATE USING (auth.uid() = user_id);
+CREATE POLICY "own_tx_delete" ON public.transactions FOR DELETE USING (auth.uid() = user_id);
+
+-- Net worth history (v1.1)
+CREATE POLICY "own_nw_select" ON public.net_worth_history FOR SELECT USING (auth.uid() = user_id);
+CREATE POLICY "own_nw_insert" ON public.net_worth_history FOR INSERT WITH CHECK (auth.uid() = user_id);
+CREATE POLICY "own_nw_update" ON public.net_worth_history FOR UPDATE USING (auth.uid() = user_id);
+CREATE POLICY "own_nw_delete" ON public.net_worth_history FOR DELETE USING (auth.uid() = user_id);
 
 -- ============================================================
 -- Auto-create profile on signup (trigger)
