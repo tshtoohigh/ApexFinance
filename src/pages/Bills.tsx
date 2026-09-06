@@ -1,11 +1,12 @@
 import { useState } from 'react';
-import { Receipt, Plus, Trash2 } from 'lucide-react';
+import { Plus } from 'lucide-react';
 import { PageWrapper } from '@/components/layout';
 import { Card, CardHeader, Badge, Button, Input } from '@/components/ui';
 import { useFinanceStore } from '@/stores/useFinanceStore';
+import { SubscriptionRow } from '@/components/bills/SubscriptionRow';
 
 export function BillsPage() {
-  const { subscriptions, addSubscription, removeSubscription } = useFinanceStore();
+  const { subscriptions, addSubscription } = useFinanceStore();
   const [showAdd, setShowAdd] = useState(false);
   const [newName, setNewName] = useState('');
   const [newAmount, setNewAmount] = useState('');
@@ -67,19 +68,7 @@ export function BillsPage() {
         )}
 
         {subscriptions.map((sub) => (
-          <div key={sub.id} className="flex items-center border-b border-border py-3 last:border-b-0">
-            <div className="mr-3 flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-purple-dim">
-              <Receipt size={12} className="text-purple" />
-            </div>
-            <div className="flex-1 min-w-0">
-              <p className="text-[13px] font-medium text-white">{sub.name}</p>
-              <p className="text-[10px] text-muted-dark">{sub.category} • {sub.frequency}</p>
-            </div>
-            <p className="px-2 font-mono text-[13px] font-semibold text-white">${sub.amount.toFixed(2)}</p>
-            <button onClick={() => removeSubscription(sub.id)} className="text-muted-dark hover:text-red">
-              <Trash2 size={12} />
-            </button>
-          </div>
+          <SubscriptionRow key={sub.id} sub={sub} />
         ))}
       </Card>
     </PageWrapper>

@@ -92,6 +92,7 @@ export interface FinanceState {
 
   // Actions - Subscriptions
   addSubscription: (sub: Subscription) => void;
+  updateSubscription: (id: string, updates: Partial<Subscription>) => void;
   removeSubscription: (id: string) => void;
 
   // Actions - Goals
@@ -359,6 +360,21 @@ export const useFinanceStore = create<FinanceState>()((set, get) => ({
         category: sub.category,
         next_bill: sub.nextBill ?? '',
       });
+    }
+  },
+
+  updateSubscription: async (id, updates) => {
+    set((s) => ({
+      subscriptions: s.subscriptions.map((sub) => (sub.id === id ? { ...sub, ...updates } : sub)),
+    }));
+    const dbUpdates: Record<string, unknown> = {};
+    if (updates.name !== undefined) dbUpdates.name = updates.name;
+    if (updates.amount !== undefined) dbUpdates.amount = updates.amount;
+    if (updates.frequency !== undefined) dbUpdates.frequency = updates.frequency;
+    if (updates.category !== undefined) dbUpdates.category = updates.category;
+    if (updates.nextBill !== undefined) dbUpdates.next_bill = updates.nextBill;
+    if (Object.keys(dbUpdates).length > 0) {
+      await supabase.from('subscriptions').update(dbUpdates).eq('id', id);
     }
   },
 
