@@ -1,30 +1,50 @@
 # Changelog
 
-## v1.1.0
+## v1.3.0 — Complete Product
 
-New features and polish focused on making Apex Finance a daily-use app.
+The current complete build of Apex Finance. Combines all core features, the v1.1 tracking upgrades, and full edit capability across the app.
 
-### ✨ New Features
-- **Transaction logging** — a new **Activity** tab to log income & expenses with categories. Shows monthly income/spent totals.
-- **Spending breakdown + budget tracking** — see this month's spending grouped by category, with a budget-used progress bar that warns when you go over.
-- **Net worth history chart** — the Dashboard now tracks your net worth over time and draws a trend line (green when growing, red when shrinking). One snapshot recorded per day automatically.
-- **Inline account editing** — edit an account's name, balance, and APY directly from Settings (pencil icon) instead of deleting and re-adding.
+### Core (from v1.0)
+- **Authentication** via Supabase (email/password) with per-user data isolation (Row Level Security)
+- **Dashboard** — net worth, safe-to-spend, accounts, live crypto
+- **Yield optimizer** — idle-cash detection, blended APY, opportunity cost
+- **Bills & subscriptions** tracking
+- **Goals** with progress tracking
+- **Risk radar** — real portfolio analysis (emergency fund, concentration, crypto %)
+- **AI chatbot** (OpenRouter, server-side key via Supabase Edge Function)
+- **Live crypto prices** from CoinGecko (auto-refresh)
+- **PWA support** + **Android APK** build path (Capacitor) with custom app icon
 
-### 💅 Polish
-- **Number formatting** — consistent currency formatting with compact `$1.2K` / `$3.4M` display for large values.
-- **Loading skeletons** — shimmer placeholders while crypto prices load, instead of blank/`...` states.
-- **Better empty states** — friendly guidance with a call-to-action when a section has no data yet.
-- Refined cards, buttons, and navigation from the earlier UI polish pass.
+### Tracking upgrades (from v1.1)
+- **Transaction logging** (Activity tab) — income/expenses with categories + monthly totals
+- **Spending breakdown & budget tracking** — category bars + over-budget warnings
+- **Net worth history chart** — auto daily snapshot with green/red trend line
 
-### 🗄️ Database
-- Two new Supabase tables: `transactions` and `net_worth_history`, both with Row Level Security.
-- **Migration:** run `supabase/migrations/v1.1_transactions_and_history.sql` in the Supabase SQL Editor if you already set up v1.0. Fresh setups get everything from `supabase/schema.sql`.
+### Full edit capability (new in v1.3)
+Everything you enter can now be **edited**, not just added or deleted:
+- **Accounts** — name, balance, APY
+- **Subscriptions** — name, amount, category
+- **Crypto holdings** — amount owned
+- **Goals** — name, target, current progress, deadline (+ delete)
 
-### 🧭 Navigation changes
-- Bottom nav now: **Home · Activity · Bills · Goals · Radar · More**
-- The **Yield Optimizer** moved under **More** (Settings → More Tools).
+Each row has a pencil ✏️ icon → inline fields with Save / Cancel, persisted to Supabase.
+
+### Polish
+- Consistent number formatting (compact `$1.2K` / `$3.4M`)
+- Loading skeletons + friendly empty states
+- Refined cards, buttons, and navigation
+
+### Database
+Fresh setups: run `supabase/schema.sql` (includes all 7 tables).
+Existing v1.0 setups: also run `supabase/migrations/v1.1_transactions_and_history.sql`.
+
+### Navigation
+Home · Activity · Bills · Goals · Radar · More (Yield lives under More).
 
 ---
 
+## v1.1.0
+- Transaction logging, spending breakdown/budgets, net worth history chart, inline account editing, formatting/skeleton/empty-state polish.
+
 ## v1.0.0
-- Initial release: auth (Supabase), dashboard, yield optimizer, bills, goals, risk radar, AI chatbot, live crypto prices, PWA support, Android APK build.
+- Initial release: auth, dashboard, yield optimizer, bills, goals, risk radar, AI chatbot, live crypto, PWA, Android APK.
