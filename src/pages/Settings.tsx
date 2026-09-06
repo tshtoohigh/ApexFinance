@@ -1,11 +1,12 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Plus, Trash2, LogOut, FileText, TrendingUp } from 'lucide-react';
+import { Plus, LogOut, FileText, TrendingUp } from 'lucide-react';
 import { PageWrapper } from '@/components/layout';
 import { Card, CardHeader, Button, Input, Select } from '@/components/ui';
 import { useFinanceStore, type Account } from '@/stores/useFinanceStore';
 import { useAuth } from '@/hooks/useAuth';
 import { AccountRow } from '@/components/accounts/AccountRow';
+import { CryptoRow } from '@/components/accounts/CryptoRow';
 
 export function SettingsPage() {
   const store = useFinanceStore();
@@ -111,10 +112,7 @@ export function SettingsPage() {
           <p className="py-3 text-center text-xs text-muted-dark">No crypto added. Add via onboarding or here.</p>
         )}
         {store.cryptoHoldings.map((h) => (
-          <div key={h.id} className="flex items-center border-b border-border py-2.5 last:border-b-0">
-            <div className="flex-1"><p className="text-xs text-white">{h.symbol}</p><p className="text-[10px] text-muted-dark">{h.amount} coins</p></div>
-            <button onClick={() => store.removeCryptoHolding(h.id)} className="text-muted-dark hover:text-red"><Trash2 size={12} /></button>
-          </div>
+          <CryptoRow key={h.id} holding={h} />
         ))}
       </Card>
 

@@ -1,12 +1,12 @@
 import { useState } from 'react';
-import { Target, Plus, CheckCircle, AlertCircle } from 'lucide-react';
+import { Plus } from 'lucide-react';
 import { PageWrapper } from '@/components/layout';
 import { Card, CardHeader, Badge, Button, Input } from '@/components/ui';
 import { useFinanceStore } from '@/stores/useFinanceStore';
-import { cn } from '@/lib/cn';
+import { GoalRow } from '@/components/goals/GoalRow';
 
 export function GoalsPage() {
-  const { goals, addGoal, updateGoal, removeGoal } = useFinanceStore();
+  const { goals, addGoal } = useFinanceStore();
   const [showAdd, setShowAdd] = useState(false);
   const [newName, setNewName] = useState('');
   const [newTarget, setNewTarget] = useState('');
@@ -58,28 +58,9 @@ export function GoalsPage() {
           <p className="py-4 text-center text-xs text-muted-dark">No goals yet. Set your first financial target!</p>
         )}
 
-        {goals.map((goal) => {
-          const progress = Math.min((goal.current / goal.target) * 100, 100);
-          const done = progress >= 100;
-          return (
-            <div key={goal.id} className="border-b border-border py-3 last:border-b-0">
-              <div className="mb-2 flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  {done ? <CheckCircle size={14} className="text-green" /> : <Target size={14} className="text-accent" />}
-                  <span className="text-xs font-medium text-white">{goal.name}</span>
-                </div>
-                <span className={cn('text-[10px] font-semibold', done ? 'text-green' : 'text-muted-dark')}>{goal.deadline}</span>
-              </div>
-              <div className="mb-1.5 h-1.5 w-full rounded-full bg-border">
-                <div className={cn('h-full rounded-full', done ? 'bg-green' : 'bg-accent')} style={{ width: `${progress}%` }} />
-              </div>
-              <div className="flex items-center justify-between text-[10px] text-muted-dark">
-                <span>${goal.current.toLocaleString()} / ${goal.target.toLocaleString()}</span>
-                <span className="font-mono">{progress.toFixed(0)}%</span>
-              </div>
-            </div>
-          );
-        })}
+        {goals.map((goal) => (
+          <GoalRow key={goal.id} goal={goal} />
+        ))}
       </Card>
     </PageWrapper>
   );
