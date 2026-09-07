@@ -4,6 +4,9 @@ import { NavBar } from '@/components/layout';
 import { ChatPanel } from '@/components/chatbot/ChatPanel';
 import { useAuth } from '@/hooks/useAuth';
 import { useFinanceStore } from '@/stores/useFinanceStore';
+import { useVersionCheck } from '@/hooks/useVersionCheck';
+import { UpdateRequiredScreen } from '@/components/version/UpdateRequiredScreen';
+import { UpdateBanner } from '@/components/version/UpdateBanner';
 import { Loader2 } from 'lucide-react';
 
 import { LoginPage } from '@/pages/Login';
@@ -20,6 +23,7 @@ import { TransactionsPage } from '@/pages/Transactions';
 export function App() {
   const { user, loading: authLoading } = useAuth();
   const { hasOnboarded, isLoading: dataLoading, error, hydrateFromSupabase } = useFinanceStore();
+  const version = useVersionCheck();
 
   // Hydrate store from Supabase when user logs in
   useEffect(() => {
@@ -27,6 +31,18 @@ export function App() {
       hydrateFromSupabase(user.id);
     }
   }, [user]);
+
+  // Hard version gate — blocks the entire app until updated.
+  // Waits for the version check to finish so we don't flash the block screen.
+  if (!version.loading && version.updateRequired) {
+    return (
+      <UpdateRequiredScreen
+        latestVersion={version.latestVersion}
+        updateUrl={version.updateUrl}
+        updateNotes={version.updateNotes}
+      />
+    );
+  }
 
   // Show loading spinner while checking auth or loading data
   if (authLoading || (user && dataLoading)) {
@@ -78,6 +94,9 @@ export function App() {
   // Step 3: Fully set up → show the app
   return (
     <>
+      {version.updateAvailable && (
+        <UpdateBanner latestVersion={version.latestVersion} updateUrl={version.updateUrl} />
+      )}
       <Routes>
         <Route path="/" element={<DashboardPage />} />
         <Route path="/yield" element={<YieldPage />} />
