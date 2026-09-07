@@ -2,19 +2,7 @@ import { Card, CardHeader } from '@/components/ui';
 import { useFinanceStore } from '@/stores/useFinanceStore';
 import { formatMoney, formatCurrency } from '@/lib/format';
 import { cn } from '@/lib/cn';
-
-// Distinct colors per category bar
-const CATEGORY_COLORS: Record<string, string> = {
-  Groceries: 'bg-green',
-  Dining: 'bg-amber',
-  Transport: 'bg-accent',
-  Shopping: 'bg-purple',
-  Bills: 'bg-red',
-  Entertainment: 'bg-[#FF8FA3]',
-  Health: 'bg-[#4ADE80]',
-  Transfer: 'bg-muted',
-  Other: 'bg-border-light',
-};
+import { getCategory } from '@/lib/categories';
 
 export function SpendingBreakdown() {
   const { transactions, monthlyBudget } = useFinanceStore();
@@ -70,16 +58,21 @@ export function SpendingBreakdown() {
       <div className="space-y-2.5">
         {sorted.map(([category, amount]) => {
           const pct = totalSpent > 0 ? (amount / totalSpent) * 100 : 0;
+          const cat = getCategory(category);
+          const Icon = cat.icon;
           return (
             <div key={category}>
               <div className="mb-1 flex items-center justify-between text-[11px]">
-                <span className="text-white">{category}</span>
+                <span className="flex items-center gap-1.5 text-white">
+                  <Icon size={12} style={{ color: cat.color }} />
+                  {cat.label}
+                </span>
                 <span className="font-mono text-muted">{formatMoney(amount)} · {pct.toFixed(0)}%</span>
               </div>
               <div className="h-1.5 w-full overflow-hidden rounded-full bg-border">
                 <div
-                  className={cn('h-full rounded-full', CATEGORY_COLORS[category] || 'bg-accent')}
-                  style={{ width: `${pct}%` }}
+                  className="h-full rounded-full"
+                  style={{ width: `${pct}%`, backgroundColor: cat.color }}
                 />
               </div>
             </div>
