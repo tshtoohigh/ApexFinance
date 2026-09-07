@@ -1,5 +1,15 @@
 # Changelog
 
+## v1.4.0 — Version Gate
+
+- **Server-controlled update system** (like Pokémon GO's "update to continue").
+  - New `app_config` table in Supabase holds `min_version` + `latest_version`.
+  - On launch the app compares its built-in version against the server.
+  - Below `min_version` → full-screen **Update Required** block.
+  - Below `latest_version` (but above min) → dismissible **Update Available** banner.
+  - Fails open: if config can't be read, the app is never blocked.
+- **To use it:** run `supabase/migrations/v1.4_app_config.sql`, then edit the `app_config` row in Supabase whenever you want to prompt/force updates.
+
 ## v1.3.0 — Complete Product
 
 The current complete build of Apex Finance. Combines all core features, the v1.1 tracking upgrades, and full edit capability across the app.
