@@ -1,5 +1,16 @@
 # Changelog
 
+## v1.5.0 — Quick-Tap Logging
+
+Makes expense tracking effortless — no more typing every field.
+
+- **Quick Log grid** on the Activity tab — 12 colorful category tiles (Food, Coffee, Groceries, Transport, etc.). Tap one to log in seconds.
+- **Number-pad entry** — a calculator-style bottom sheet opens on tap: enter the amount, add an optional note, confirm. Logging takes ~3 seconds.
+- **"Spent Today" spotlight** — the Activity tab now leads with today's spending so you get an instant answer to "how am I doing?"
+- **Category colors & icons everywhere** — a shared category config gives every expense a consistent icon + color across the Quick Log grid, transaction history, and spending breakdown. The app feels alive instead of monochrome.
+- **One-tap Income** button for logging money in.
+- **Manual entry** is still available (collapsible) as a fallback for edge cases.
+
 ## v1.4.0 — Version Gate
 
 - **Server-controlled update system** (like Pokémon GO's "update to continue").
