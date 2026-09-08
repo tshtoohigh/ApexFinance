@@ -11,7 +11,12 @@ import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.43.4';
 
 const OPENROUTER_URL = 'https://openrouter.ai/api/v1/chat/completions';
-const MODEL = 'meta-llama/llama-3.1-8b-instruct:free';
+// Free models on OpenRouter, tried in order until one responds.
+const MODELS = [
+  'meta-llama/llama-3.3-70b-instruct:free',
+  'google/gemini-2.0-flash-exp:free',
+  'meta-llama/llama-3.1-8b-instruct:free',
+];
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -75,44 +80,55 @@ ${financialContext || 'No financial data available yet.'}
 
 Give short, actionable answers (2-4 sentences max). If asked about specific actions, give concrete next steps. Never recommend specific stocks or give investment advice that could be considered professional financial advice — frame suggestions as educational. Always remind users this is informational, not financial advice.`;
 
-    // Call OpenRouter
-    const response = await fetch(OPENROUTER_URL, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${openRouterKey}`,
-      },
-      body: JSON.stringify({
-        model: MODEL,
-        messages: [
-          { role: 'system', content: systemPrompt },
-          ...messages.slice(-10), // Last 10 messages for context
-        ],
-        max_tokens: 300,
-        temperature: 0.7,
-      }),
-    });
-
-    if (!response.ok) {
-      const errorText = await response.text();
-      return new Response(JSON.stringify({ error: `AI service error: ${response.status}`, details: errorText }), {
-        status: 502,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    // Try each free model in order until one succeeds
+    let lastError = '';
+    for (const model of MODELS) {
+      const response = await fetch(OPENROUTER_URL, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${openRouterKey}`,
+          'HTTP-Referer': 'https://rsfinance.app',
+          'X-Title': 'RS Finance',
+        },
+        body: JSON.stringify({
+          model,
+          messages: [
+            { role: 'system', content: systemPrompt },
+            ...messages.slice(-10),
+          ],
+          max_tokens: 300,
+          temperature: 0.7,
+        }),
       });
+
+      if (response.ok) {
+        const data = await response.json();
+        const content = data.choices?.[0]?.message?.content;
+        if (content) {
+          // Always return 200 so the client shows the reply cleanly
+          return new Response(JSON.stringify({ content }), {
+            status: 200,
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          });
+        }
+        lastError = 'Model returned an empty response.';
+      } else {
+        lastError = await response.text();
+      }
+      // otherwise loop to the next model
     }
 
-    const data = await response.json();
-    const content = data.choices?.[0]?.message?.content || 'Sorry, I could not process that.';
-
-    return new Response(JSON.stringify({ content }), {
-      status: 200,
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-    });
+    // All models failed — return 200 with a readable message so the UI shows it
+    return new Response(
+      JSON.stringify({ content: `The AI service is busy right now. (${lastError.slice(0, 120)}) Please try again in a moment.` }),
+      { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+    );
 
   } catch (err) {
-    return new Response(JSON.stringify({ error: 'Internal error', details: String(err) }), {
-      status: 500,
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-    });
+    return new Response(
+      JSON.stringify({ content: `Something went wrong: ${String(err).slice(0, 120)}` }),
+      { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+    );
   }
 });
