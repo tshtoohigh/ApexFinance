@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import { Layers, Eye, EyeOff, Loader2 } from 'lucide-react';
-import { Button, Input } from '@/components/ui';
+import { Eye, EyeOff, Loader2 } from 'lucide-react';
+import { Button, Input, BrandMark } from '@/components/ui';
 import { useAuth } from '@/hooks/useAuth';
 
 export function LoginPage() {
@@ -66,12 +66,10 @@ export function LoginPage() {
     <div className="flex min-h-screen flex-col items-center justify-center px-6">
       {/* Logo */}
       <div className="mb-8 flex flex-col items-center">
-        <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-2xl border border-accent-mid bg-accent-dim shadow-lg shadow-accent/10">
-          <Layers size={32} className="text-accent" strokeWidth={1.6} />
-        </div>
+        <BrandMark size={72} className="mb-4" />
         <h1 className="text-2xl font-bold tracking-tight">RS Finance</h1>
         <p className="mt-1 text-[13px] text-muted-dark">Your money, in one view</p>
-        <p className="mt-1 text-[10px] font-medium uppercase tracking-[0.15em] text-muted-dark/70">Powered by RS Corp</p>
+        <p className="mt-1.5 text-[10px] font-semibold uppercase tracking-[0.2em] text-muted-dark/70">Powered by RS Corp</p>
       </div>
 
       {/* Auth Card */}

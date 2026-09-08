@@ -18,10 +18,30 @@
 @layer utilities {
   /* Card elevation shadows (modern fintech depth) */
   .shadow-card {
-    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.4), 0 4px 16px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.35), 0 6px 20px rgba(0, 0, 0, 0.22);
   }
   .shadow-glow {
-    box-shadow: 0 0 24px rgba(0, 240, 255, 0.08), 0 4px 16px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 0 28px rgba(0, 240, 255, 0.1), 0 6px 20px rgba(0, 0, 0, 0.3);
+  }
+  /* Hairline top highlight for a glassy card edge */
+  .card-sheen {
+    position: relative;
+  }
+  .card-sheen::before {
+    content: '';
+    position: absolute;
+    inset: 0 0 auto 0;
+    height: 1px;
+    border-radius: inherit;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.06), transparent);
+  }
+  /* Count-up feel for hero numbers */
+  .animate-rise {
+    animation: rise 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  @keyframes rise {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
   }
 
   /* Smooth fade-in for page transitions */

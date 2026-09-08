@@ -1,5 +1,12 @@
 # Changelog
 
+## v1.7.0 — Professional Polish
+
+- **New professional app icon** — a custom RS monogram with a growth-bar motif and cyan gradient, replacing the generic placeholder. Applied to the PWA icons, favicon, and Android app.
+- **Reusable BrandMark component** — consistent RS logo on the login and onboarding screens (no more generic layers icon).
+- **Refined Dashboard** — time-of-day greeting, a user avatar, a bolder net-worth hero with a glassy sheen, stat tiles on a surface background, and consistent currency formatting throughout (fixed the mismatched raw number formatting).
+- **Design-system upgrades** — softer layered shadows, a subtle card sheen edge, and a rise-in animation for hero numbers, so the app feels more polished and less template-y.
+
 ## v1.6.0 — RS Finance Rebrand
 
 - **Renamed from Apex Finance → RS Finance** across the entire app: login, onboarding, terms, chatbot, update screens, PWA manifest, page title, and Android app config.

@@ -6,3 +6,4 @@ export { Select } from './Select';
 export { Disclaimer } from './Disclaimer';
 export { Skeleton, SkeletonRow } from './Skeleton';
 export { EmptyState } from './EmptyState';
+export { BrandMark } from './BrandMark';

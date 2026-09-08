@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Layers, ArrowRight, Plus, Trash2 } from 'lucide-react';
-import { Card, Button, Input, Select } from '@/components/ui';
+import { ArrowRight, Plus, Trash2 } from 'lucide-react';
+import { Card, Button, Input, Select, BrandMark } from '@/components/ui';
 import { useFinanceStore, type Account, type CryptoHolding } from '@/stores/useFinanceStore';
 
 export function OnboardingPage() {
@@ -70,9 +70,7 @@ export function OnboardingPage() {
     <div className="mx-auto min-h-screen max-w-[430px] px-4 py-8">
       {/* Logo */}
       <div className="mb-8 flex items-center gap-3">
-        <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-accent-mid bg-accent-dim">
-          <Layers size={20} className="text-accent" />
-        </div>
+        <BrandMark size={44} />
         <div>
           <h1 className="text-lg font-bold">RS Finance</h1>
           <p className="text-[11px] text-muted-dark">Let's set up your finances</p>

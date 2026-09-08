@@ -1,13 +1,12 @@
 import { useState, useEffect } from 'react';
 import { Wallet, RefreshCw, Info, X } from 'lucide-react';
 import { PageWrapper } from '@/components/layout';
-import { Card, CardHeader, Badge } from '@/components/ui';
+import { Card, CardHeader, Badge, SkeletonRow } from '@/components/ui';
 import { NetWorthChart } from '@/components/dashboard/NetWorthChart';
-import { SkeletonRow } from '@/components/ui';
 import { useFinanceStore } from '@/stores/useFinanceStore';
 import { useCryptoPrices } from '@/hooks/useCryptoPrices';
 import { computeDashboardSummary } from '@/lib/dashboard-engine';
-import { formatCurrency, formatCompact } from '@/lib/format';
+import { formatCurrency, formatCompact, greeting, initialOf } from '@/lib/format';
 import { cn } from '@/lib/cn';
 
 export function DashboardPage() {
@@ -40,23 +39,26 @@ export function DashboardPage() {
       {/* Header */}
       <div className="mb-5 flex items-center justify-between">
         <div>
-          <p className="text-[11px] text-muted-dark">
-            {userName ? `Welcome back, ${userName}` : 'Welcome back'}
-          </p>
-          <h1 className="text-xl font-bold">Dashboard</h1>
+          <p className="text-[11px] text-muted-dark">{greeting()}{userName ? ',' : ''}</p>
+          <h1 className="text-xl font-bold">{userName || 'Dashboard'}</h1>
         </div>
-        <Badge variant="live" dot>Live</Badge>
+        <div className="flex h-10 w-10 items-center justify-center rounded-full border border-border bg-card text-sm font-bold text-accent">
+          {initialOf(userName)}
+        </div>
       </div>
 
       {/* Net Worth */}
-      <Card gradient className="mb-3">
-        <p className="text-[9px] font-semibold uppercase tracking-wider text-muted-dark">Net Worth</p>
-        <p className="mt-1 font-mono text-[32px] font-bold leading-none">
+      <Card gradient glow className="card-sheen mb-3">
+        <div className="flex items-center justify-between">
+          <p className="text-[9px] font-semibold uppercase tracking-wider text-muted-dark">Total Net Worth</p>
+          <Badge variant="live" dot>Live</Badge>
+        </div>
+        <p className="mt-1.5 font-mono text-[34px] font-bold leading-none tracking-tight animate-rise">
           {formatCurrency(summary.netWorth)}
         </p>
-        <div className="mt-3 flex gap-4">
-          <MiniStat label="Income/mo" value={formatCurrency(summary.monthlyIncome)} color="text-white" />
-          <MiniStat label="Budget/mo" value={formatCurrency(summary.monthlyBudget)} color="text-muted" />
+        <div className="mt-4 grid grid-cols-3 gap-2">
+          <MiniStat label="Income/mo" value={formatCompact(summary.monthlyIncome)} color="text-white" />
+          <MiniStat label="Budget/mo" value={formatCompact(summary.monthlyBudget)} color="text-muted" />
           <MiniStat label="Crypto" value={formatCompact(summary.cryptoTotal)} color="text-purple" />
         </div>
       </Card>
@@ -77,13 +79,13 @@ export function DashboardPage() {
               </button>
             </div>
             <p className="font-mono text-2xl font-bold text-accent">
-              ${summary.safeToSpend.toLocaleString(undefined, { maximumFractionDigits: 0 })}
+              {formatCurrency(summary.safeToSpend)}
               <span className="ml-2 text-sm font-medium text-muted-dark">/mo</span>
             </p>
           </div>
           <div className="text-right">
             <p className="font-mono text-sm font-semibold text-accent">
-              ${summary.safeToSpendDaily.toLocaleString(undefined, { maximumFractionDigits: 0 })}
+              {formatCurrency(summary.safeToSpendDaily)}
             </p>
             <p className="text-[9px] text-muted-dark">/day • {summary.daysLeftInMonth}d left</p>
           </div>
@@ -101,23 +103,23 @@ export function DashboardPage() {
             <div className="space-y-1 font-mono text-[10px]">
               <div className="flex justify-between">
                 <span className="text-muted-dark">Monthly Budget</span>
-                <span className="text-white">${summary.monthlyBudget.toLocaleString()}</span>
+                <span className="text-white">{formatCurrency(summary.monthlyBudget)}</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-muted-dark">− Recurring Bills ({subscriptions.length})</span>
-                <span className="text-red">−${summary.totalRecurringBills.toLocaleString(undefined, { maximumFractionDigits: 0 })}</span>
+                <span className="text-red">−{formatCurrency(summary.totalRecurringBills)}</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-muted-dark">− Goal Contributions ({goals.length})</span>
-                <span className="text-red">−${summary.totalGoalContributions.toLocaleString(undefined, { maximumFractionDigits: 0 })}</span>
+                <span className="text-red">−{formatCurrency(summary.totalGoalContributions)}</span>
               </div>
               <div className="mt-1 border-t border-border pt-1 flex justify-between font-semibold">
                 <span className="text-accent">= Safe to Spend</span>
-                <span className="text-accent">${summary.safeToSpend.toLocaleString(undefined, { maximumFractionDigits: 0 })}/mo</span>
+                <span className="text-accent">{formatCurrency(summary.safeToSpend)}/mo</span>
               </div>
               <div className="flex justify-between text-muted-dark">
                 <span>÷ {summary.daysLeftInMonth} days remaining</span>
-                <span className="text-accent">${summary.safeToSpendDaily.toLocaleString(undefined, { maximumFractionDigits: 0 })}/day</span>
+                <span className="text-accent">{formatCurrency(summary.safeToSpendDaily)}/day</span>
               </div>
             </div>
           </div>
@@ -133,19 +135,24 @@ export function DashboardPage() {
         {accounts.length === 0 && (
           <p className="py-4 text-center text-xs text-muted-dark">No accounts added. Go to Settings to add.</p>
         )}
-        {accounts.map((acc) => (
-          <div key={acc.id} className="flex items-center border-b border-border py-2.5 last:border-b-0">
-            <div className="flex-1 min-w-0">
-              <p className="text-[13px] font-medium text-white truncate">{acc.name}</p>
-              <p className="text-[10px] text-muted-dark">
-                {acc.institution} • {acc.type}{acc.apy ? ` • ${acc.apy}% APY` : ''}
+        {accounts.map((acc) => {
+          return (
+            <div key={acc.id} className="flex items-center border-b border-border py-2.5 last:border-b-0">
+              <div className="mr-3 flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-surface text-[11px] font-bold uppercase text-accent">
+                {acc.name.charAt(0)}
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="truncate text-[13px] font-medium text-white">{acc.name}</p>
+                <p className="text-[10px] capitalize text-muted-dark">
+                  {acc.institution ? `${acc.institution} • ` : ''}{acc.type}{acc.apy ? ` • ${acc.apy}% APY` : ''}
+                </p>
+              </div>
+              <p className="font-mono text-[13px] font-semibold text-white">
+                {formatCurrency(acc.balance)}
               </p>
             </div>
-            <p className="font-mono text-[13px] font-semibold text-white">
-              ${acc.balance.toLocaleString()}
-            </p>
-          </div>
-        ))}
+          );
+        })}
       </Card>
 
       {/* Live Crypto */}
@@ -188,9 +195,9 @@ export function DashboardPage() {
 
 function MiniStat({ label, value, color }: { label: string; value: string; color: string }) {
   return (
-    <div>
-      <p className="text-[9px] font-semibold uppercase tracking-wider text-muted-dark">{label}</p>
-      <p className={`font-mono text-sm font-semibold ${color}`}>{value}</p>
+    <div className="rounded-lg bg-surface/60 px-2.5 py-2">
+      <p className="text-[8px] font-semibold uppercase tracking-wider text-muted-dark">{label}</p>
+      <p className={`mt-0.5 font-mono text-sm font-semibold ${color}`}>{value}</p>
     </div>
   );
 }
