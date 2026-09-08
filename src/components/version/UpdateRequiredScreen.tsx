@@ -27,7 +27,7 @@ export function UpdateRequiredScreen({ latestVersion, updateUrl, updateNotes }: 
 
       <h1 className="text-xl font-bold">Update Required</h1>
       <p className="mt-2 max-w-[300px] text-[13px] leading-relaxed text-muted">
-        A new version of Apex Finance is available and required to continue.
+        A new version of RS Finance is available and required to continue.
       </p>
 
       {updateNotes && (

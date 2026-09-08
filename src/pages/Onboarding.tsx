@@ -74,7 +74,7 @@ export function OnboardingPage() {
           <Layers size={20} className="text-accent" />
         </div>
         <div>
-          <h1 className="text-lg font-bold">Apex Finance</h1>
+          <h1 className="text-lg font-bold">RS Finance</h1>
           <p className="text-[11px] text-muted-dark">Let's set up your finances</p>
         </div>
       </div>
@@ -177,7 +177,7 @@ export function OnboardingPage() {
           <div className="flex gap-2">
             <Button variant="outline" onClick={() => setStep(1)}>Back</Button>
             <Button fullWidth onClick={handleFinish}>
-              Launch Apex Finance <ArrowRight size={14} />
+              Launch RS Finance <ArrowRight size={14} />
             </Button>
           </div>
         </Card>

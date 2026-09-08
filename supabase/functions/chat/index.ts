@@ -69,7 +69,7 @@ serve(async (req: Request) => {
     }
 
     // Build system prompt with financial context
-    const systemPrompt = `You are a helpful personal finance assistant for the Apex Finance app. Be concise, practical, and actionable. Use plain language, not jargon.
+    const systemPrompt = `You are a helpful personal finance assistant for RS Finance (by RS Corp). Be concise, practical, and actionable. Use plain language, not jargon.
 
 ${financialContext || 'No financial data available yet.'}
 

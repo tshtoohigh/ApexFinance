@@ -9,7 +9,7 @@ export function TermsPage() {
       <Card className="mb-3">
         <h2 className="mb-2 text-sm font-semibold text-white">Disclaimer</h2>
         <p className="mb-3 text-[12px] leading-relaxed text-muted">
-          Apex Finance is an informational tool designed to help you organize and view your financial data in one place. 
+          RS Finance is an informational tool designed to help you organize and view your financial data in one place. 
           It does <span className="font-semibold text-white">not</span> provide financial advice, investment recommendations, 
           or any form of professional financial guidance.
         </p>
@@ -20,7 +20,7 @@ export function TermsPage() {
         </p>
         <p className="text-[12px] leading-relaxed text-muted">
           The "Risk Radar" and "Yield" features perform calculations based on the data you manually enter. These calculations 
-          are illustrative and may not reflect your actual financial position. Apex Finance is not responsible for any financial 
+          are illustrative and may not reflect your actual financial position. RS Finance is not responsible for any financial 
           decisions made based on information displayed in this application.
         </p>
       </Card>
@@ -43,11 +43,15 @@ export function TermsPage() {
       <Card>
         <h2 className="mb-2 text-sm font-semibold text-white">No Autonomous Execution</h2>
         <p className="text-[12px] leading-relaxed text-muted">
-          Apex Finance does not move, transfer, trade, or transact any funds on your behalf. It is a read-only dashboard 
+          RS Finance does not move, transfer, trade, or transact any funds on your behalf. It is a read-only dashboard 
           and planning tool. Any "suggested moves" or "yield opportunities" shown are informational only and require you 
           to take action independently through your own financial institutions.
         </p>
       </Card>
+
+      <p className="mt-4 text-center text-[10px] text-muted-dark">
+        © {new Date().getFullYear()} RS Corp · RS Finance
+      </p>
     </PageWrapper>
   );
 }

@@ -1,4 +1,6 @@
-# Apex Finance (Real / Functional)
+# RS Finance
+
+*Powered by RS Corp*
 
 A **real, functioning** personal finance app. No fake data — YOU enter your accounts and balances, crypto prices come **live from CoinGecko**, and an **AI chatbot** (OpenRouter) gives you personalized financial advice.
 

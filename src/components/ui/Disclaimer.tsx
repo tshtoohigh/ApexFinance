@@ -5,7 +5,7 @@ interface DisclaimerProps {
   message?: string;
 }
 
-export function Disclaimer({ message = 'Apex Finance provides informational insights, not financial advice.' }: DisclaimerProps) {
+export function Disclaimer({ message = 'RS Finance provides informational insights, not financial advice.' }: DisclaimerProps) {
   const [dismissed, setDismissed] = useState(false);
 
   if (dismissed) return null;

@@ -43,7 +43,7 @@ export function ChatPanel() {
                 <MessageCircle size={14} className="text-accent" />
               </div>
               <div>
-                <p className="text-sm font-semibold text-white">Apex AI</p>
+                <p className="text-sm font-semibold text-white">RS AI</p>
                 <p className="text-[10px] text-muted-dark">Financial Assistant</p>
               </div>
             </div>
@@ -56,7 +56,7 @@ export function ChatPanel() {
           <div ref={scrollRef} className="flex-1 overflow-y-auto p-4 space-y-3">
             {/* Disclaimer */}
             <div className="flex items-center gap-2 rounded-lg border border-amber/20 bg-amber/[0.04] px-3 py-2">
-              <span className="text-[10px] text-muted">⚠️ Apex provides informational insights, not financial advice.</span>
+              <span className="text-[10px] text-muted">⚠️ RS Finance provides informational insights, not financial advice.</span>
             </div>
             {messages.map((msg) => (
               <MessageBubble key={msg.id} message={msg} />

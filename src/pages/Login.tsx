@@ -69,8 +69,9 @@ export function LoginPage() {
         <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-2xl border border-accent-mid bg-accent-dim shadow-lg shadow-accent/10">
           <Layers size={32} className="text-accent" strokeWidth={1.6} />
         </div>
-        <h1 className="text-2xl font-bold tracking-tight">Apex Finance</h1>
+        <h1 className="text-2xl font-bold tracking-tight">RS Finance</h1>
         <p className="mt-1 text-[13px] text-muted-dark">Your money, in one view</p>
+        <p className="mt-1 text-[10px] font-medium uppercase tracking-[0.15em] text-muted-dark/70">Powered by RS Corp</p>
       </div>
 
       {/* Auth Card */}

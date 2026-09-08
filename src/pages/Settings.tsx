@@ -136,6 +136,11 @@ export function SettingsPage() {
           Delete All Data & Log Out
         </Button>
       </Card>
+
+      {/* Branding footer */}
+      <p className="pb-2 text-center text-[10px] text-muted-dark">
+        RS Finance · Powered by RS Corp
+      </p>
     </PageWrapper>
   );
 }

@@ -18,7 +18,7 @@ export function useChatbot() {
     {
       id: 'welcome',
       role: 'assistant',
-      content: "Hi! I'm your Apex Finance assistant. I can help you understand your finances, suggest strategies, or answer money questions. What can I help with?",
+      content: "Hi! I'm your RS Finance assistant. I can help you understand your finances, suggest strategies, or answer money questions. What can I help with?",
       timestamp: Date.now(),
     },
   ]);
