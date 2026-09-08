@@ -1,5 +1,13 @@
 # Changelog
 
+## v1.6.0 — RS Finance Rebrand
+
+- **Renamed from Apex Finance → RS Finance** across the entire app: login, onboarding, terms, chatbot, update screens, PWA manifest, page title, and Android app config.
+- **"Powered by RS Corp"** branding added to the login screen, Settings footer, and Terms page.
+- Android app ID updated to `com.rscorp.rsfinance`.
+- AI assistant renamed to **RS AI**.
+- No functional/logic changes — this is a branding release.
+
 ## v1.5.0 — Quick-Tap Logging
 
 Makes expense tracking effortless — no more typing every field.

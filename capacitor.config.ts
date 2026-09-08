@@ -1,8 +1,8 @@
 import type { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
-  appId: 'com.apexfinance.app',
-  appName: 'Apex Finance',
+  appId: 'com.rscorp.rsfinance',
+  appName: 'RS Finance',
   webDir: 'dist',
   server: {
     androidScheme: 'https',
