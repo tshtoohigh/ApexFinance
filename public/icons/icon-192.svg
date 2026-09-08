@@ -1,9 +1,21 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="192" height="192" viewBox="0 0 192 192">
-  <rect width="192" height="192" rx="40" fill="#0A0F1D"/>
-  <rect x="16" y="16" width="160" height="160" rx="32" fill="#141C2E" stroke="#00F0FF" stroke-width="2" stroke-opacity="0.3"/>
-  <g transform="translate(56, 56)" stroke="#00F0FF" stroke-width="4" fill="none" stroke-linecap="round" stroke-linejoin="round">
-    <path d="M40 8L8 28l32 20 32-20L40 8z"/>
-    <path d="M8 52l32 20 32-20"/>
-    <path d="M8 40l32 20 32-20"/>
+<svg xmlns="http://www.w3.org/2000/svg" width="192" height="192" viewBox="0 0 192 192" fill="none">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="192" y2="192" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#0F1525"/>
+      <stop offset="1" stop-color="#0A0F1D"/>
+    </linearGradient>
+    <linearGradient id="mark" x1="56" y1="52" x2="140" y2="142" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#5CF6FF"/>
+      <stop offset="1" stop-color="#00C2D6"/>
+    </linearGradient>
+  </defs>
+  <rect width="192" height="192" rx="43" fill="url(#bg)"/>
+  <g opacity="0.9">
+    <rect x="68" y="113" width="10" height="22" rx="3.5" fill="#00F0FF" fill-opacity="0.35"/>
+    <rect x="85" y="98" width="10" height="37" rx="3.5" fill="#00F0FF" fill-opacity="0.55"/>
+    <rect x="102" y="81" width="10" height="54" rx="3.5" fill="#00F0FF" fill-opacity="0.8"/>
+    <rect x="119" y="62" width="10" height="73" rx="3.5" fill="#00F0FF"/>
   </g>
+  <text x="96" y="88" text-anchor="middle" font-family="-apple-system, 'Segoe UI', sans-serif"
+        font-size="56" font-weight="800" letter-spacing="-2" fill="url(#mark)">RS</text>
 </svg>

@@ -7,7 +7,7 @@
  */
 
 // Keep this in sync with package.json "version"
-export const APP_VERSION = '1.6.0';
+export const APP_VERSION = '1.7.0';
 
 /**
  * Compare two semver strings.

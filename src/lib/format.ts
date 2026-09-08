@@ -35,6 +35,20 @@ export function formatPercent(value: number, decimals = 1): string {
   return `${sign}${value.toFixed(decimals)}%`;
 }
 
+/** Time-of-day greeting. */
+export function greeting(): string {
+  const h = new Date().getHours();
+  if (h < 12) return 'Good morning';
+  if (h < 18) return 'Good afternoon';
+  return 'Good evening';
+}
+
+/** First initial for an avatar, uppercased. */
+export function initialOf(name: string, fallbackEmail?: string): string {
+  const src = name?.trim() || fallbackEmail || '?';
+  return src.charAt(0).toUpperCase();
+}
+
 /** Short relative date label for a timestamp. */
 export function formatRelativeDate(iso: string): string {
   const then = new Date(iso).getTime();
