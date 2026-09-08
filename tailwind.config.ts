@@ -5,25 +5,34 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        bg: '#0A0F1D',
-        card: '#141C2E',
-        'card-hover': '#1A2438',
-        surface: '#0F1525',
-        accent: '#00F0FF',
-        'accent-dim': 'rgba(0, 240, 255, 0.12)',
-        'accent-mid': 'rgba(0, 240, 255, 0.25)',
-        green: '#00E68A',
-        'green-dim': 'rgba(0, 230, 138, 0.12)',
-        red: '#FF4D6A',
-        'red-dim': 'rgba(255, 77, 106, 0.12)',
-        amber: '#FFB020',
-        'amber-dim': 'rgba(255, 176, 32, 0.12)',
-        purple: '#A78BFA',
-        'purple-dim': 'rgba(167, 139, 250, 0.12)',
-        muted: '#8E9BAE',
-        'muted-dark': '#4A5568',
-        border: '#1E293B',
-        'border-light': '#2D3748',
+        // ─── Layered surfaces (clear brightness steps for depth/contrast) ───
+        bg: '#070A11',          // deepest — the page
+        card: '#161E2E',        // clearly lifts off the bg
+        'card-hover': '#1F2A3D',
+        surface: '#232E43',     // distinct 3rd tier for inner elements/tiles
+
+        // ─── Accent ───
+        accent: '#22F0FF',
+        'accent-dim': 'rgba(34, 240, 255, 0.14)',
+        'accent-mid': 'rgba(34, 240, 255, 0.28)',
+
+        // ─── Status ───
+        green: '#22E88A',
+        'green-dim': 'rgba(34, 232, 138, 0.15)',
+        red: '#FF5C77',
+        'red-dim': 'rgba(255, 92, 119, 0.15)',
+        amber: '#FFC24D',
+        'amber-dim': 'rgba(255, 194, 77, 0.15)',
+        purple: '#B79CFF',
+        'purple-dim': 'rgba(183, 156, 255, 0.15)',
+
+        // ─── Text (brighter tiers for readability) ───
+        muted: '#AEBAD0',       // secondary text — now clearly readable
+        'muted-dark': '#6B7A93',// tertiary/labels — lifted from the old dim gray
+
+        // ─── Borders (visible edges) ───
+        border: '#2E3B52',
+        'border-light': '#3C4C69',
       },
       fontFamily: {
         sans: ['-apple-system', 'BlinkMacSystemFont', 'Inter', 'Segoe UI', 'sans-serif'],
