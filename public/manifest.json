@@ -4,8 +4,8 @@
   "description": "Your money, in one view",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#0A0F1D",
-  "theme_color": "#00F0FF",
+  "background_color": "#070A11",
+  "theme_color": "#22F0FF",
   "orientation": "portrait",
   "icons": [
     {

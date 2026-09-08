@@ -12,7 +12,7 @@ export function Card({ children, className, gradient, glow }: CardProps) {
   return (
     <div className={cn(
       'rounded-2xl border border-border bg-card p-4 shadow-card transition-shadow duration-200',
-      gradient && 'bg-gradient-to-br from-card via-card to-accent/[0.04]',
+      gradient && 'bg-gradient-to-br from-card via-card to-accent/[0.06]',
       glow && 'shadow-glow',
       className
     )}>

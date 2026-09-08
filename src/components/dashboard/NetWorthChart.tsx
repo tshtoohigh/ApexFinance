@@ -51,20 +51,20 @@ export function NetWorthChart() {
             dataKey="date"
             axisLine={false}
             tickLine={false}
-            tick={{ fill: '#4A5568', fontSize: 9 }}
+            tick={{ fill: '#6B7A93', fontSize: 9 }}
             interval="preserveStartEnd"
           />
           <YAxis
             axisLine={false}
             tickLine={false}
-            tick={{ fill: '#4A5568', fontSize: 9 }}
+            tick={{ fill: '#6B7A93', fontSize: 9 }}
             tickFormatter={(v) => formatCompact(v)}
             width={48}
           />
           <Tooltip
             contentStyle={{
-              background: '#141C2E',
-              border: '1px solid #1E293B',
+              background: '#161E2E',
+              border: '1px solid #2E3B52',
               borderRadius: '8px',
               fontSize: '11px',
             }}

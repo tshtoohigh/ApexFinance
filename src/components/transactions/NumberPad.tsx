@@ -57,7 +57,7 @@ export function NumberPad({ category, onConfirm, onClose }: NumberPadProps) {
 
         {/* Amount display */}
         <div className="mb-3 text-center">
-          <span className="font-mono text-4xl font-bold" style={{ color: value ? category.color : '#4A5568' }}>
+          <span className="font-mono text-4xl font-bold" style={{ color: value ? category.color : '#6B7A93' }}>
             ${value || '0'}
           </span>
         </div>

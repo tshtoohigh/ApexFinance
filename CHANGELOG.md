@@ -1,5 +1,16 @@
 # Changelog
 
+## v1.8.0 — Contrast Overhaul
+
+Fixes the flat "dark-blue-on-dark-blue" look — the app now has real visual depth and hierarchy.
+
+- **Layered surfaces with clear brightness steps** — the page (`#070A11`), cards (`#161E2E`), and inner tiles (`#232E43`) are now distinctly separated, so cards visibly lift off the background instead of blending in.
+- **Brighter, more readable text tiers** — secondary text (`#AEBAD0`) and labels (`#6B7A93`) are lifted for legibility.
+- **Visible borders** — card edges (`#2E3B52`) actually show now.
+- **Stronger elevation shadows** so cards have depth against the deeper background.
+- **Punchier accent + status colors** (cyan, green, red, amber, purple) that pop against the more neutral surroundings.
+- Updated chart, tooltip, PWA manifest, and theme colors to match.
+
 ## v1.7.0 — Professional Polish
 
 - **New professional app icon** — a custom RS monogram with a growth-bar motif and cyan gradient, replacing the generic placeholder. Applied to the PWA icons, favicon, and Android app.
