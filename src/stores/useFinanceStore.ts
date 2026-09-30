@@ -53,16 +53,18 @@ export interface NetWorthSnapshot {
 
 /**
  * A physical / alternative asset — anything worth money that isn't in a
- * bank account (sneakers for resale, watches, collectibles, a car...).
+ * bank account. Works for personal possessions, investments held to
+ * appreciate, or inventory bought to flip.
  */
 export interface PhysicalAsset {
   id: string;
   name: string;
   category: string;
+  /** Why you own it: personal use, an investment, or resale inventory */
+  intent: 'personal' | 'investment' | 'resale';
   quantity: number;
   purchasePrice: number;   // what you paid (per unit)
   currentValue: number;    // what it's worth now (per unit)
-  forSale: boolean;        // flagged as intended for resale
   notes?: string;
 }
 
@@ -276,10 +278,11 @@ export const useFinanceStore = create<FinanceState>()((set, get) => ({
           id: a.id,
           name: a.name,
           category: a.category,
+          // Fall back to the old boolean flag for rows created before v2.0
+          intent: (a.intent as PhysicalAsset['intent']) ?? (a.for_sale ? 'resale' : 'personal'),
           quantity: Number(a.quantity) || 1,
           purchasePrice: Number(a.purchase_price) || 0,
           currentValue: Number(a.current_value) || 0,
-          forSale: Boolean(a.for_sale),
           notes: a.notes ?? '',
         })),
         isLoading: false,
@@ -492,10 +495,11 @@ export const useFinanceStore = create<FinanceState>()((set, get) => ({
         user_id: user.id,
         name: asset.name,
         category: asset.category,
+        intent: asset.intent,
         quantity: asset.quantity,
         purchase_price: asset.purchasePrice,
         current_value: asset.currentValue,
-        for_sale: asset.forSale,
+        for_sale: asset.intent === 'resale', // kept in sync for older clients
         notes: asset.notes ?? '',
       });
     }
@@ -511,7 +515,10 @@ export const useFinanceStore = create<FinanceState>()((set, get) => ({
     if (updates.quantity !== undefined) dbUpdates.quantity = updates.quantity;
     if (updates.purchasePrice !== undefined) dbUpdates.purchase_price = updates.purchasePrice;
     if (updates.currentValue !== undefined) dbUpdates.current_value = updates.currentValue;
-    if (updates.forSale !== undefined) dbUpdates.for_sale = updates.forSale;
+    if (updates.intent !== undefined) {
+      dbUpdates.intent = updates.intent;
+      dbUpdates.for_sale = updates.intent === 'resale';
+    }
     if (updates.notes !== undefined) dbUpdates.notes = updates.notes;
     if (Object.keys(dbUpdates).length > 0) {
       await supabase.from('physical_assets').update(dbUpdates).eq('id', id);

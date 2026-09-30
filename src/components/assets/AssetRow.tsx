@@ -1,40 +1,42 @@
 import { useState } from 'react';
-import { Pencil, Trash2, Check, X, Tag } from 'lucide-react';
+import { Pencil, Trash2, Check, X } from 'lucide-react';
 import { Input, Select } from '@/components/ui';
+import { IntentPicker } from './IntentPicker';
 import { useFinanceStore, type PhysicalAsset } from '@/stores/useFinanceStore';
-import { ASSET_CATEGORIES, getAssetCategory } from '@/lib/assetCategories';
+import { ASSET_CATEGORIES, getAssetCategory, getIntent, type AssetIntent } from '@/lib/assetCategories';
 import { formatCurrency, formatPercent } from '@/lib/format';
 import { cn } from '@/lib/cn';
 
-/** One owned item, with inline editing and profit/loss vs what you paid. */
+/** One owned item, with inline editing and gain/loss vs what you paid. */
 export function AssetRow({ asset }: { asset: PhysicalAsset }) {
   const { updatePhysicalAsset, removePhysicalAsset } = useFinanceStore();
   const [editing, setEditing] = useState(false);
   const [name, setName] = useState(asset.name);
   const [category, setCategory] = useState(asset.category);
+  const [intent, setIntent] = useState<AssetIntent>(asset.intent);
   const [qty, setQty] = useState(asset.quantity.toString());
   const [paid, setPaid] = useState(asset.purchasePrice.toString());
   const [value, setValue] = useState(asset.currentValue.toString());
-  const [forSale, setForSale] = useState(asset.forSale);
 
   const save = () => {
     updatePhysicalAsset(asset.id, {
       name: name.trim() || asset.name,
       category,
+      intent,
       quantity: Math.max(1, Number(qty) || 1),
       purchasePrice: Number(paid) || 0,
       currentValue: Number(value) || 0,
-      forSale,
     });
     setEditing(false);
   };
 
   const cancel = () => {
-    setName(asset.name); setCategory(asset.category);
+    setName(asset.name);
+    setCategory(asset.category);
+    setIntent(asset.intent);
     setQty(asset.quantity.toString());
     setPaid(asset.purchasePrice.toString());
     setValue(asset.currentValue.toString());
-    setForSale(asset.forSale);
     setEditing(false);
   };
 
@@ -46,18 +48,11 @@ export function AssetRow({ asset }: { asset: PhysicalAsset }) {
           label="Category" value={category} onChange={(e) => setCategory(e.target.value)}
           options={ASSET_CATEGORIES.map((c) => ({ value: c.key, label: c.label }))}
         />
+        <p className="mb-1.5 text-[11px] font-medium text-muted">Why you own it</p>
+        <IntentPicker value={intent} onChange={setIntent} compact />
         <Input label="Quantity" type="number" value={qty} onChange={(e) => setQty(e.target.value)} />
         <Input label="Paid (each)" prefix="$" type="number" value={paid} onChange={(e) => setPaid(e.target.value)} />
-        <Input label="Worth now (each)" prefix="$" type="number" value={value} onChange={(e) => setValue(e.target.value)} />
-        <button
-          onClick={() => setForSale(!forSale)}
-          className={cn(
-            'mb-3 flex w-full items-center justify-center gap-2 rounded-lg border py-2 text-[11px] font-semibold transition-colors',
-            forSale ? 'border-amber/40 bg-amber-dim text-amber' : 'border-border bg-surface text-muted-dark'
-          )}
-        >
-          <Tag size={12} /> {forSale ? 'Listed for resale' : 'Not for sale'}
-        </button>
+        <Input label="Worth today (each)" prefix="$" type="number" value={value} onChange={(e) => setValue(e.target.value)} />
         <div className="flex gap-2">
           <button onClick={save} className="flex flex-1 items-center justify-center gap-1 rounded-lg bg-accent py-2 text-[11px] font-semibold text-bg">
             <Check size={12} /> Save
@@ -71,6 +66,7 @@ export function AssetRow({ asset }: { asset: PhysicalAsset }) {
   }
 
   const cat = getAssetCategory(asset.category);
+  const intentDef = getIntent(asset.intent);
   const Icon = cat.icon;
   const totalValue = asset.currentValue * asset.quantity;
   const totalPaid = asset.purchasePrice * asset.quantity;
@@ -85,17 +81,19 @@ export function AssetRow({ asset }: { asset: PhysicalAsset }) {
       </div>
 
       <div className="min-w-0 flex-1">
-        <div className="flex items-center gap-1.5">
-          <p className="truncate text-[13px] font-semibold text-white">{asset.name}</p>
-          {asset.forSale && (
-            <span className="shrink-0 rounded bg-amber-dim px-1.5 py-0.5 text-[8px] font-bold uppercase tracking-wide text-amber">
-              Resale
-            </span>
-          )}
+        <p className="truncate text-[13px] font-semibold text-white">{asset.name}</p>
+        <div className="mt-0.5 flex items-center gap-1.5">
+          <span
+            className="rounded px-1.5 py-0.5 text-[8px] font-bold uppercase tracking-wide"
+            style={{ color: intentDef.color, backgroundColor: `${intentDef.color}1f` }}
+          >
+            {intentDef.short}
+          </span>
+          <span className="truncate text-[10px] text-muted-dark">
+            {cat.label}{asset.quantity > 1 ? ` · ${asset.quantity}×` : ''}
+            {totalPaid > 0 ? ` · paid ${formatCurrency(totalPaid)}` : ''}
+          </span>
         </div>
-        <p className="text-[10px] text-muted-dark">
-          {cat.label}{asset.quantity > 1 ? ` · ${asset.quantity}×` : ''} · paid {formatCurrency(totalPaid)}
-        </p>
       </div>
 
       <div className="pl-2 text-right">

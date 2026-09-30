@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
-import { Wallet, RefreshCw, Info, X } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { Wallet, RefreshCw, Info, X, TrendingUp, ChevronRight } from 'lucide-react';
 import { PageWrapper } from '@/components/layout';
-import { Card, CardHeader, Badge, SkeletonRow } from '@/components/ui';
+import { Card, CardHeader, Badge, SkeletonRow, Button } from '@/components/ui';
 import { NetWorthChart } from '@/components/dashboard/NetWorthChart';
 import { useFinanceStore } from '@/stores/useFinanceStore';
 import { useCryptoPrices } from '@/hooks/useCryptoPrices';
@@ -12,6 +13,7 @@ import { cn } from '@/lib/cn';
 export function DashboardPage() {
   const { accounts, cryptoHoldings, subscriptions, goals, monthlyIncome, monthlyBudget, userName, physicalAssets, recordNetWorthSnapshot } = useFinanceStore();
   const { prices, loading: cryptoLoading } = useCryptoPrices();
+  const navigate = useNavigate();
 
   // Build price map
   const cryptoPrices: Record<string, number> = {};
@@ -135,6 +137,39 @@ export function DashboardPage() {
         )}
       </div>
 
+      {/* Asset performance — only when you're holding things to grow value */}
+      {(() => {
+        const earning = physicalAssets.filter((a) => a.intent !== 'personal');
+        const paid = earning.reduce((s, a) => s + a.purchasePrice * a.quantity, 0);
+        if (paid === 0) return null;
+        const worth = earning.reduce((s, a) => s + a.currentValue * a.quantity, 0);
+        const gain = worth - paid;
+        const roi = (gain / paid) * 100;
+        const up = gain >= 0;
+        return (
+          <button
+            onClick={() => navigate('/assets')}
+            className="mb-3 flex w-full items-center gap-3 rounded-xl border border-border bg-card p-3.5 text-left shadow-card transition-colors hover:border-border-light"
+          >
+            <div className={cn('flex h-9 w-9 shrink-0 items-center justify-center rounded-lg', up ? 'bg-green-dim' : 'bg-red-dim')}>
+              <TrendingUp size={16} className={up ? 'text-green' : 'text-red'} />
+            </div>
+            <div className="flex-1">
+              <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-dark">
+                Asset performance
+              </p>
+              <p className="font-mono text-base font-bold text-white">
+                {up ? '+' : ''}{formatCurrency(gain)}{' '}
+                <span className={cn('text-xs font-semibold', up ? 'text-green' : 'text-red')}>
+                  ({roi >= 0 ? '+' : ''}{roi.toFixed(1)}%)
+                </span>
+              </p>
+            </div>
+            <ChevronRight size={16} className="shrink-0 text-muted-dark" />
+          </button>
+        );
+      })()}
+
       {/* Net Worth History Chart */}
       <NetWorthChart />
 
@@ -142,7 +177,12 @@ export function DashboardPage() {
       <Card className="mb-3">
         <CardHeader title="Accounts" subtitle={accounts.length > 0 ? `${accounts.length} linked` : 'None yet'} />
         {accounts.length === 0 && (
-          <p className="py-4 text-center text-xs text-muted-dark">No accounts added. Go to Settings to add.</p>
+          <div className="py-4 text-center">
+            <p className="mb-3 text-xs text-muted-dark">No accounts yet</p>
+            <Button size="sm" variant="ghost" onClick={() => navigate('/settings')}>
+              Add an account
+            </Button>
+          </div>
         )}
         {accounts.map((acc) => {
           return (
