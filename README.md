@@ -62,6 +62,16 @@ Open `http://localhost:5173`, sign up, and the onboarding flow will walk you thr
 
 To open it on your phone on the same Wi-Fi, run `npm run dev -- --host` and use the network URL it prints.
 
+### Verifying a setup or update (Windows)
+
+`scripts/test-update.ps1` checks the whole chain read-only — build, all 9 tables, the version gate, whether RLS is actually protecting your rows, and whether email confirmation is still blocking logins:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\scripts\test-update.ps1
+```
+
+Add `-SkipBuild` to only test the database, or `-Serve` to launch the app once everything passes.
+
 ---
 
 ## Android APK
