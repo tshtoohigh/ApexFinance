@@ -89,6 +89,7 @@ CREATE TABLE IF NOT EXISTS public.physical_assets (
   user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE NOT NULL,
   name TEXT NOT NULL,
   category TEXT DEFAULT 'Other',
+  intent TEXT DEFAULT 'personal' CHECK (intent IN ('personal', 'investment', 'resale')),
   quantity NUMERIC DEFAULT 1,
   purchase_price NUMERIC DEFAULT 0,
   current_value NUMERIC DEFAULT 0,

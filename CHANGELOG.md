@@ -1,5 +1,40 @@
 # Changelog
 
+## v2.0.0 — Universal Assets
+
+Assets are no longer sneaker-centric. The feature now works for **anything** of value, and the model reflects how people actually think about what they own.
+
+### The key idea: *why* you own it
+Every asset is now tagged with an intent, which changes how it's tracked:
+
+| Intent | Meaning |
+|--------|---------|
+| **Personal** | You own and use it — counts toward net worth |
+| **Investment** | Bought to hold and appreciate (a watch, art, wine) |
+| **For Resale** | Inventory you intend to flip for profit |
+
+This means a Rolex held as an investment, a bag bought to resell, and your daily-driver car are all tracked correctly — and measured differently.
+
+### Performance tracking that makes sense
+- **Return is calculated only on money you deployed to grow** (investments + resale stock), so your personal possessions don't distort your ROI.
+- Shows amount invested, current worth, return %, and unrealised profit/loss.
+- A tappable **Asset performance** card now appears on the Dashboard when you hold appreciating assets.
+
+### Broader categories (16, none niche-specific)
+Watches · Jewelry · Bags · Sneakers · Fashion · Art · Cards · Collectibles · Electronics · Gaming · Instruments · Wine · Vehicles · Property · Equipment · Other
+
+Each has a tailored valuation hint (Chrono24 for watches, Fashionphile for bags, Reverb for instruments, and so on).
+
+### More intuitive throughout
+- Assets are **grouped into collapsible sections** by intent, each with its own total and gain — so your investment portfolio is visually separate from your possessions.
+- The add form is now a clear **3-step flow**: what is it → why you own it → details.
+- The submit button tells you what's missing instead of silently doing nothing.
+- Neutral defaults (no pre-selected category) so nothing feels biased toward one use case.
+- Empty states and the empty accounts card now have actionable buttons instead of dead-end text.
+
+### Database
+Run `supabase/migrations/v2.0_asset_intent.sql`. Existing assets are migrated automatically (anything previously flagged for sale becomes "For Resale").
+
 ## v1.9.0 — Holistic Net Worth
 
 RS Finance is now a complete personal finance view, not just a bank tracker.
