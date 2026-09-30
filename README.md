@@ -74,6 +74,25 @@ Add `-SkipBuild` to only test the database, or `-Serve` to launch the app once e
 
 ---
 
+## Deploying to a public URL
+
+The app is a static SPA — any static host works. `vercel.json` and `netlify.toml` are both committed, so no dashboard configuration is needed.
+
+```powershell
+npm run build
+npx vercel --prod          # or: npx netlify deploy --prod --dir=dist
+```
+
+Both configs do the same three things:
+
+- **SPA fallback** — rewrites every unmatched path to `index.html`. Without this, `/assets` and `/goals` return 404 on refresh or on a shared link, because those routes exist only inside `BrowserRouter`.
+- **`sw.js` and `manifest.json` are never CDN-cached** — a pinned service worker is the usual reason a deploy "doesn't update".
+- **`/assets/*` cached for a year** — safe because Vite content-hashes those filenames.
+
+Nothing else needs changing for hosting. The Supabase anon key is meant to be public; row-level security is what protects the data. Email/password auth works from any origin, so there is no redirect allow-list to configure unless you later add OAuth.
+
+---
+
 ## Android APK
 
 The app is a PWA, so it installs from the browser via **Add to Home Screen**. For a real installable APK, see [`BUILD_APK.md`](BUILD_APK.md) — the short version:
