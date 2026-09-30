@@ -1,6 +1,16 @@
 import { create } from 'zustand';
 import { supabase } from '@/lib/supabase';
 
+/**
+ * Error codes that mean "this table does not exist", i.e. schema.sql has not
+ * been run against the project.
+ *
+ * PGRST205 is what the REST API returns (HTTP 404, "Could not find the table
+ * in the schema cache"). 42P01 is the underlying Postgres undefined_table
+ * code, seen only when an error propagates straight from the database.
+ */
+const MISSING_TABLE_CODES = ['PGRST205', '42P01'];
+
 // ─── Types ───────────────────────────────────────────────────────────────────
 
 export interface Account {
@@ -170,10 +180,27 @@ export const useFinanceStore = create<FinanceState>()((set, get) => ({
         .eq('id', userId)
         .single();
 
-      // If profiles table doesn't exist, just skip DB hydration gracefully
-      if (profileError && profileError.code === '42P01') {
-        console.warn('Supabase tables not yet created. Run schema.sql in SQL Editor.');
-        set({ isLoading: false, hasOnboarded: false });
+      // If the tables don't exist, schema.sql has never been run.
+      //
+      // PostgREST reports a missing table as PGRST205 (HTTP 404, "Could not
+      // find the table in the schema cache"). The raw Postgres code 42P01 is
+      // only seen when the error comes straight from the database, so both
+      // have to be handled — matching only 42P01 meant this never fired.
+      //
+      // Surface it as a real error rather than continuing. Otherwise every
+      // query below returns null, the app silently falls back to onboarding,
+      // writes fail quietly, and it looks like the app works while nothing
+      // ever saves.
+      if (profileError && MISSING_TABLE_CODES.includes(profileError.code)) {
+        console.warn(
+          'Supabase tables not found. Run supabase/schema.sql in the SQL Editor.',
+        );
+        set({
+          isLoading: false,
+          hasOnboarded: false,
+          error:
+            'Your database has no tables yet. Open supabase/schema.sql, paste all of it into the Supabase SQL Editor, and click Run.',
+        });
         return;
       }
 
@@ -289,8 +316,17 @@ export const useFinanceStore = create<FinanceState>()((set, get) => ({
       });
     } catch (err: any) {
       console.error('Failed to hydrate from Supabase:', err);
-      // Don't block the app — just let them use it without persistence
-      set({ isLoading: false, error: null, hasOnboarded: false });
+      // Previously this swallowed the error and dropped the user into
+      // onboarding, which looks identical to a brand-new account — so a real
+      // outage was indistinguishable from a first run. Surface it instead;
+      // App.tsx renders a Retry button for this state.
+      set({
+        isLoading: false,
+        hasOnboarded: false,
+        error: err?.message
+          ? `Could not load your data: ${err.message}`
+          : 'Could not reach the database. Check your connection and retry.',
+      });
     }
   },
 
