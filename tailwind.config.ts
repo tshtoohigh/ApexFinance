@@ -35,8 +35,11 @@ const config: Config = {
         'border-light': '#3C4C69',
       },
       fontFamily: {
-        sans: ['-apple-system', 'BlinkMacSystemFont', 'Inter', 'Segoe UI', 'sans-serif'],
-        mono: ['SF Mono', 'Fira Code', 'JetBrains Mono', 'Cascadia Code', 'monospace'],
+        sans: ['Inter', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'sans-serif'],
+        mono: ['"JetBrains Mono"', 'SF Mono', 'Fira Code', 'monospace'],
+      },
+      letterSpacing: {
+        tightest: '-0.03em',
       },
     },
   },

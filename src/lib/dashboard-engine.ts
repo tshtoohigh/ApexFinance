@@ -1,4 +1,4 @@
-import type { Account, CryptoHolding, Subscription, Goal } from '@/stores/useFinanceStore';
+import type { Account, CryptoHolding, Subscription, Goal, PhysicalAsset } from '@/stores/useFinanceStore';
 
 /**
  * Dashboard Calculation Engine
@@ -11,6 +11,7 @@ export interface DashboardSummary {
   netWorth: number;
   accountTotal: number;
   cryptoTotal: number;
+  assetTotal: number;
   monthlyIncome: number;
   monthlyBudget: number;
   totalRecurringBills: number;
@@ -41,15 +42,20 @@ export function computeDashboardSummary(
   subscriptions: Subscription[],
   goals: Goal[],
   monthlyIncome: number,
-  monthlyBudget: number
+  monthlyBudget: number,
+  physicalAssets: PhysicalAsset[] = []
 ): DashboardSummary {
-  // Net worth
+  // Net worth = liquid accounts + crypto + owned physical assets
   const accountTotal = accounts.reduce((sum, a) => sum + a.balance, 0);
   const cryptoTotal = cryptoHoldings.reduce(
     (sum, h) => sum + h.amount * (cryptoPrices[h.symbol] || 0),
     0
   );
-  const netWorth = accountTotal + cryptoTotal;
+  const assetTotal = physicalAssets.reduce(
+    (sum, a) => sum + a.currentValue * a.quantity,
+    0
+  );
+  const netWorth = accountTotal + cryptoTotal + assetTotal;
 
   // Recurring bills (monthly subscriptions)
   const totalRecurringBills = subscriptions
@@ -75,6 +81,7 @@ export function computeDashboardSummary(
     netWorth,
     accountTotal,
     cryptoTotal,
+    assetTotal,
     monthlyIncome,
     monthlyBudget,
     totalRecurringBills,

@@ -51,6 +51,21 @@ export interface NetWorthSnapshot {
   date: string; // ISO string
 }
 
+/**
+ * A physical / alternative asset — anything worth money that isn't in a
+ * bank account (sneakers for resale, watches, collectibles, a car...).
+ */
+export interface PhysicalAsset {
+  id: string;
+  name: string;
+  category: string;
+  quantity: number;
+  purchasePrice: number;   // what you paid (per unit)
+  currentValue: number;    // what it's worth now (per unit)
+  forSale: boolean;        // flagged as intended for resale
+  notes?: string;
+}
+
 export interface FinanceState {
   // Profile
   hasOnboarded: boolean;
@@ -65,6 +80,7 @@ export interface FinanceState {
   goals: Goal[];
   transactions: Transaction[];
   netWorthHistory: NetWorthSnapshot[];
+  physicalAssets: PhysicalAsset[];
 
   // Loading state
   isLoading: boolean;
@@ -104,6 +120,11 @@ export interface FinanceState {
   addTransaction: (tx: Transaction) => void;
   removeTransaction: (id: string) => void;
 
+  // Actions - Physical assets
+  addPhysicalAsset: (asset: PhysicalAsset) => void;
+  updatePhysicalAsset: (id: string, updates: Partial<PhysicalAsset>) => void;
+  removePhysicalAsset: (id: string) => void;
+
   // Actions - Net worth history
   recordNetWorthSnapshot: (value: number) => void;
 
@@ -125,6 +146,7 @@ export const useFinanceStore = create<FinanceState>()((set, get) => ({
   goals: [],
   transactions: [],
   netWorthHistory: [],
+  physicalAssets: [],
   isLoading: true,
   error: null,
   openRouterApiKey: localStorage.getItem('apex-openrouter-key') || '',
@@ -197,6 +219,12 @@ export const useFinanceStore = create<FinanceState>()((set, get) => ({
         .eq('user_id', userId)
         .order('date', { ascending: true });
 
+      // Fetch physical assets
+      const { data: physAssets } = await supabase
+        .from('physical_assets')
+        .select('*')
+        .eq('user_id', userId);
+
       set({
         hasOnboarded: profile?.has_onboarded ?? false,
         userName: profile?.user_name ?? '',
@@ -243,6 +271,16 @@ export const useFinanceStore = create<FinanceState>()((set, get) => ({
           id: n.id,
           value: Number(n.value),
           date: n.date,
+        })),
+        physicalAssets: (physAssets ?? []).map((a) => ({
+          id: a.id,
+          name: a.name,
+          category: a.category,
+          quantity: Number(a.quantity) || 1,
+          purchasePrice: Number(a.purchase_price) || 0,
+          currentValue: Number(a.current_value) || 0,
+          forSale: Boolean(a.for_sale),
+          notes: a.notes ?? '',
         })),
         isLoading: false,
       });
@@ -443,6 +481,48 @@ export const useFinanceStore = create<FinanceState>()((set, get) => ({
     await supabase.from('transactions').delete().eq('id', id);
   },
 
+  // ─── Physical Asset Actions ──────────────────────────────────────────────
+
+  addPhysicalAsset: async (asset) => {
+    set((s) => ({ physicalAssets: [...s.physicalAssets, asset] }));
+    const { data: { user } } = await supabase.auth.getUser();
+    if (user) {
+      await supabase.from('physical_assets').insert({
+        id: asset.id,
+        user_id: user.id,
+        name: asset.name,
+        category: asset.category,
+        quantity: asset.quantity,
+        purchase_price: asset.purchasePrice,
+        current_value: asset.currentValue,
+        for_sale: asset.forSale,
+        notes: asset.notes ?? '',
+      });
+    }
+  },
+
+  updatePhysicalAsset: async (id, updates) => {
+    set((s) => ({
+      physicalAssets: s.physicalAssets.map((a) => (a.id === id ? { ...a, ...updates } : a)),
+    }));
+    const dbUpdates: Record<string, unknown> = {};
+    if (updates.name !== undefined) dbUpdates.name = updates.name;
+    if (updates.category !== undefined) dbUpdates.category = updates.category;
+    if (updates.quantity !== undefined) dbUpdates.quantity = updates.quantity;
+    if (updates.purchasePrice !== undefined) dbUpdates.purchase_price = updates.purchasePrice;
+    if (updates.currentValue !== undefined) dbUpdates.current_value = updates.currentValue;
+    if (updates.forSale !== undefined) dbUpdates.for_sale = updates.forSale;
+    if (updates.notes !== undefined) dbUpdates.notes = updates.notes;
+    if (Object.keys(dbUpdates).length > 0) {
+      await supabase.from('physical_assets').update(dbUpdates).eq('id', id);
+    }
+  },
+
+  removePhysicalAsset: async (id) => {
+    set((s) => ({ physicalAssets: s.physicalAssets.filter((a) => a.id !== id) }));
+    await supabase.from('physical_assets').delete().eq('id', id);
+  },
+
   // ─── Net Worth History ───────────────────────────────────────────────────
 
   recordNetWorthSnapshot: async (value) => {
@@ -490,6 +570,7 @@ export const useFinanceStore = create<FinanceState>()((set, get) => ({
       goals: [],
       transactions: [],
       netWorthHistory: [],
+      physicalAssets: [],
       isLoading: false,
       error: null,
     });

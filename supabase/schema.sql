@@ -83,6 +83,21 @@ CREATE TABLE IF NOT EXISTS public.net_worth_history (
   date TIMESTAMPTZ DEFAULT NOW()
 );
 
+-- Physical Assets (v1.9) — sneakers, watches, collectibles, vehicles...
+CREATE TABLE IF NOT EXISTS public.physical_assets (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE NOT NULL,
+  name TEXT NOT NULL,
+  category TEXT DEFAULT 'Other',
+  quantity NUMERIC DEFAULT 1,
+  purchase_price NUMERIC DEFAULT 0,
+  current_value NUMERIC DEFAULT 0,
+  for_sale BOOLEAN DEFAULT FALSE,
+  notes TEXT DEFAULT '',
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
 -- ============================================================
 -- Row Level Security (RLS) Policies
 -- Each user can only read/write their own data
@@ -95,6 +110,7 @@ ALTER TABLE public.subscriptions ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.goals ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.transactions ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.net_worth_history ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.physical_assets ENABLE ROW LEVEL SECURITY;
 
 -- Profiles: users can only access their own profile
 CREATE POLICY "Users can view own profile" ON public.profiles FOR SELECT USING (auth.uid() = id);
@@ -136,6 +152,12 @@ CREATE POLICY "own_nw_select" ON public.net_worth_history FOR SELECT USING (auth
 CREATE POLICY "own_nw_insert" ON public.net_worth_history FOR INSERT WITH CHECK (auth.uid() = user_id);
 CREATE POLICY "own_nw_update" ON public.net_worth_history FOR UPDATE USING (auth.uid() = user_id);
 CREATE POLICY "own_nw_delete" ON public.net_worth_history FOR DELETE USING (auth.uid() = user_id);
+
+-- Physical assets (v1.9)
+CREATE POLICY "own_assets_select" ON public.physical_assets FOR SELECT USING (auth.uid() = user_id);
+CREATE POLICY "own_assets_insert" ON public.physical_assets FOR INSERT WITH CHECK (auth.uid() = user_id);
+CREATE POLICY "own_assets_update" ON public.physical_assets FOR UPDATE USING (auth.uid() = user_id);
+CREATE POLICY "own_assets_delete" ON public.physical_assets FOR DELETE USING (auth.uid() = user_id);
 
 -- ============================================================
 -- Auto-create profile on signup (trigger)

@@ -1,5 +1,37 @@
 # Changelog
 
+## v1.9.0 — Holistic Net Worth
+
+RS Finance is now a complete personal finance view, not just a bank tracker.
+
+### New: Assets tab
+Track **anything you own that holds value** — sneakers for resale, watches, collectibles, electronics, vehicles, art, instruments, jewelry, property.
+
+- **11 asset categories** with distinct icons and colors
+- **Cost basis vs current value** — see unrealised gain/loss and % return per item and overall
+- **"Flag for resale"** — mark items you intend to sell and see your total potential liquidity at a glance
+- **Quantity support** for multiples (e.g. 3 pairs of the same sneaker)
+- **Valuation hints** per category (e.g. "Check StockX / GOAT for market value")
+- **Category breakdown** bars showing what your asset value is made of
+- Full inline editing on every item
+
+### Net worth is now holistic
+The Dashboard net worth = **cash & bank + crypto + physical assets**. A new composition bar and three stat tiles show exactly how your net worth breaks down.
+
+### Professional typography
+- **Inter** for the interface and **JetBrains Mono** for all figures
+- **Tabular numbers** so currency columns align properly (essential in a finance app)
+- Tighter heading tracking and optimised font rendering
+
+### Removed
+- The floating AI chat bubble has been removed from the layout for a cleaner, more focused interface.
+
+### Navigation
+Home · Activity · Assets · Goals · Bills · More — Risk Radar and Yield Optimizer now live under **More**.
+
+### Database
+Run `supabase/migrations/v1.9_physical_assets.sql` in the Supabase SQL Editor to enable asset tracking.
+
 ## v1.8.0 — Contrast Overhaul
 
 Fixes the flat "dark-blue-on-dark-blue" look — the app now has real visual depth and hierarchy.
