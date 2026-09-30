@@ -10,7 +10,7 @@ import { formatCurrency, formatCompact, greeting, initialOf } from '@/lib/format
 import { cn } from '@/lib/cn';
 
 export function DashboardPage() {
-  const { accounts, cryptoHoldings, subscriptions, goals, monthlyIncome, monthlyBudget, userName, recordNetWorthSnapshot } = useFinanceStore();
+  const { accounts, cryptoHoldings, subscriptions, goals, monthlyIncome, monthlyBudget, userName, physicalAssets, recordNetWorthSnapshot } = useFinanceStore();
   const { prices, loading: cryptoLoading } = useCryptoPrices();
 
   // Build price map
@@ -20,7 +20,7 @@ export function DashboardPage() {
   }
 
   const summary = computeDashboardSummary(
-    accounts, cryptoHoldings, cryptoPrices, subscriptions, goals, monthlyIncome, monthlyBudget
+    accounts, cryptoHoldings, cryptoPrices, subscriptions, goals, monthlyIncome, monthlyBudget, physicalAssets
   );
 
   const [showFormula, setShowFormula] = useState(false);
@@ -56,10 +56,19 @@ export function DashboardPage() {
         <p className="mt-1.5 font-mono text-[34px] font-bold leading-none tracking-tight animate-rise">
           {formatCurrency(summary.netWorth)}
         </p>
-        <div className="mt-4 grid grid-cols-3 gap-2">
-          <MiniStat label="Income/mo" value={formatCompact(summary.monthlyIncome)} color="text-white" />
-          <MiniStat label="Budget/mo" value={formatCompact(summary.monthlyBudget)} color="text-muted" />
+        {/* Composition bar — shows what makes up the net worth */}
+        {summary.netWorth > 0 && (
+          <div className="mt-4 flex h-1.5 w-full gap-0.5 overflow-hidden rounded-full bg-border">
+            <div className="bg-accent" style={{ width: `${(summary.accountTotal / summary.netWorth) * 100}%` }} />
+            <div className="bg-purple" style={{ width: `${(summary.cryptoTotal / summary.netWorth) * 100}%` }} />
+            <div className="bg-amber" style={{ width: `${(summary.assetTotal / summary.netWorth) * 100}%` }} />
+          </div>
+        )}
+
+        <div className="mt-3 grid grid-cols-3 gap-2">
+          <MiniStat label="Cash & Bank" value={formatCompact(summary.accountTotal)} color="text-accent" />
           <MiniStat label="Crypto" value={formatCompact(summary.cryptoTotal)} color="text-purple" />
+          <MiniStat label="Assets" value={formatCompact(summary.assetTotal)} color="text-amber" />
         </div>
       </Card>
 

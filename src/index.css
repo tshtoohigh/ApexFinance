@@ -5,11 +5,21 @@
 @layer base {
   * { -webkit-tap-highlight-color: transparent; }
   body {
-    @apply bg-bg text-white antialiased;
+    @apply bg-bg font-sans text-white antialiased;
     background-image:
       radial-gradient(circle at 50% -5%, rgba(34, 240, 255, 0.06), transparent 45%);
     background-attachment: fixed;
+    /* Inter's optical sizing + tabular figures for aligned numbers */
+    font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
   }
+  /* Numbers align in columns — essential for a finance app */
+  .font-mono, [class*='font-mono'] {
+    font-variant-numeric: tabular-nums;
+    font-feature-settings: 'tnum';
+  }
+  h1, h2, h3 { @apply tracking-tightest; }
   ::-webkit-scrollbar { width: 4px; height: 4px; }
   ::-webkit-scrollbar-track { background: transparent; }
   ::-webkit-scrollbar-thumb { background: theme('colors.border'); border-radius: 2px; }

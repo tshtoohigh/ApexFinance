@@ -1,7 +1,6 @@
 import { useEffect } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { NavBar } from '@/components/layout';
-import { ChatPanel } from '@/components/chatbot/ChatPanel';
 import { useAuth } from '@/hooks/useAuth';
 import { useFinanceStore } from '@/stores/useFinanceStore';
 import { useVersionCheck } from '@/hooks/useVersionCheck';
@@ -19,6 +18,7 @@ import { RadarPage } from '@/pages/Radar';
 import { SettingsPage } from '@/pages/Settings';
 import { TermsPage } from '@/pages/Terms';
 import { TransactionsPage } from '@/pages/Transactions';
+import { AssetsPage } from '@/pages/Assets';
 
 export function App() {
   const { user, loading: authLoading } = useAuth();
@@ -101,6 +101,7 @@ export function App() {
         <Route path="/" element={<DashboardPage />} />
         <Route path="/yield" element={<YieldPage />} />
         <Route path="/transactions" element={<TransactionsPage />} />
+        <Route path="/assets" element={<AssetsPage />} />
         <Route path="/bills" element={<BillsPage />} />
         <Route path="/goals" element={<GoalsPage />} />
         <Route path="/radar" element={<RadarPage />} />
@@ -109,7 +110,6 @@ export function App() {
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
       <NavBar />
-      <ChatPanel />
     </>
   );
 }

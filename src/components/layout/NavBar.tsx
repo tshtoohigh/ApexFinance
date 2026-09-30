@@ -1,13 +1,13 @@
 import { useLocation, useNavigate } from 'react-router-dom';
-import { Home, ArrowLeftRight, Receipt, Target, Shield, Settings } from 'lucide-react';
+import { Home, ArrowLeftRight, Package, Target, Receipt, Settings } from 'lucide-react';
 import { cn } from '@/lib/cn';
 
 const NAV = [
   { key: '/', label: 'Home', icon: Home },
   { key: '/transactions', label: 'Activity', icon: ArrowLeftRight },
-  { key: '/bills', label: 'Bills', icon: Receipt },
+  { key: '/assets', label: 'Assets', icon: Package },
   { key: '/goals', label: 'Goals', icon: Target },
-  { key: '/radar', label: 'Radar', icon: Shield },
+  { key: '/bills', label: 'Bills', icon: Receipt },
   { key: '/settings', label: 'More', icon: Settings },
 ];
 

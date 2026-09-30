@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Plus, LogOut, FileText, TrendingUp } from 'lucide-react';
+import { Plus, LogOut, FileText, TrendingUp, Shield } from 'lucide-react';
 import { PageWrapper } from '@/components/layout';
 import { Card, CardHeader, Button, Input, Select } from '@/components/ui';
 import { useFinanceStore, type Account } from '@/stores/useFinanceStore';
@@ -119,6 +119,9 @@ export function SettingsPage() {
       {/* More Tools */}
       <Card className="mb-3">
         <CardHeader title="More Tools" />
+        <Button variant="outline" fullWidth className="mb-2" onClick={() => navigate('/radar')}>
+          <Shield size={14} /> Risk Radar
+        </Button>
         <Button variant="outline" fullWidth className="mb-2" onClick={() => navigate('/yield')}>
           <TrendingUp size={14} /> Yield Optimizer
         </Button>
