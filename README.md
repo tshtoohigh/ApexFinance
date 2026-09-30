@@ -1,31 +1,55 @@
 # RS Finance
 
-*Powered by RS Corp*
+*Powered by RS Corp* · v2.0.0
 
-A **real, functioning** personal finance app. No fake data — YOU enter your accounts and balances, crypto prices come **live from CoinGecko**, and an **AI chatbot** (OpenRouter) gives you personalized financial advice.
+A personal finance app built around **total net worth**, not just bank balances. Your cash, investments, crypto, and physical assets — watches, sneakers, jewelry, cars, resale inventory — all in one number.
 
-## What's Real Here
+Your data lives in **Supabase** (Postgres, per-user row-level security), so it follows you across devices instead of being trapped in one browser.
 
-| Feature | How It Works |
-|---------|-------------|
-| Net Worth | Calculated from accounts YOU enter (stored in localStorage) |
-| Crypto Prices | **Live from CoinGecko API** (free, no key needed) — refreshes every 60s |
-| Safe to Spend | Calculated from your income - budget |
-| Yield Tracking | Shows APY on accounts you mark as earning yield |
-| Bills/Subscriptions | You add them, app totals and tracks monthly burn |
-| Risk Radar | Analyzes YOUR actual portfolio allocation dynamically |
-| AI Chatbot | Calls **OpenRouter API** with your financial context — answers questions |
-| Data Persistence | All data saved to **localStorage** — survives page refreshes |
+---
 
-## What You Need
+## What it actually does
 
-| Thing | Cost | Notes |
-|-------|------|-------|
-| Node.js | Free | Already installed if you ran the mockup |
-| OpenRouter API key | Free | For AI chatbot — [get one here](https://openrouter.ai/keys) |
-| CoinGecko | Free | No key needed, public API |
+| Area | What it does |
+|------|-------------|
+| **Net worth** | Cash + investments + live crypto + physical assets, tracked daily as a trend |
+| **Assets** | Log anything with value across 16 categories, grouped by *why* you own it |
+| **Activity** | Log income and expenses; quick-tap buttons for common expenses |
+| **Bills** | Recurring subscriptions with monthly and yearly burn totals |
+| **Goals** | Savings targets with a projected completion date from your contribution rate |
+| **Crypto** | Prices pulled live from CoinGecko every 60s — you store only the amount you hold |
+| **Yield** | Flags idle cash and estimates what you're leaving on the table at current APYs |
+| **Risk Radar** | Scores your actual allocation for concentration, liquidity, and volatility |
 
-## Quick Start
+### The intent model
+
+Every physical asset is tagged with **why you own it** — the thing that actually changes how it should be counted:
+
+- **Personal** — you own it and use it. Counted in net worth, excluded from returns.
+- **Investment** — bought to hold and appreciate. Counted as deployed capital.
+- **Resale** — inventory you intend to flip. Counted as deployed capital.
+
+Return on investment is only calculated on *deployed capital* (investment + resale). Your couch shouldn't drag down your portfolio performance, and your daily-wear watch isn't a loss just because it depreciated.
+
+---
+
+## Setup
+
+You need **Node.js 18+** and a free **Supabase** account. Nothing else is required — CoinGecko needs no key.
+
+### 1. Create the database
+
+In your Supabase project: **SQL Editor → New Query**, paste the entire contents of [`supabase/schema.sql`](supabase/schema.sql), and hit **Run**.
+
+That one file creates all 9 tables, every security policy, and the signup trigger. It's safe to run more than once, so if anything fails you can fix it and re-run the whole thing.
+
+Then turn off email confirmation so you can log in immediately: **Authentication → Providers → Email → uncheck "Confirm email" → Save**.
+
+### 2. Point the app at your project
+
+In `src/lib/supabase.ts`, set your project URL and anon key (found in Supabase under **Project Settings → API**). The anon key is safe to ship in the client — row-level security is what protects the data.
+
+### 3. Run it
 
 ```bash
 git clone https://github.com/tshtoohigh/ApexFinance.git
@@ -34,33 +58,50 @@ npm install
 npm run dev
 ```
 
-1. App opens to **Onboarding** — enter your name, income, accounts, crypto
-2. Paste your **OpenRouter API key** (optional, for AI chatbot)
-3. You're in! Dashboard shows your real net worth with live crypto prices
-4. Tap the **chat bubble** (bottom-left) to talk to the AI about your finances
+Open `http://localhost:5173`, sign up, and the onboarding flow will walk you through your name, income, budget, and first accounts.
 
-## Tech Stack
+To open it on your phone on the same Wi-Fi, run `npm run dev -- --host` and use the network URL it prints.
 
-- React 18 + TypeScript + Vite 5
-- Tailwind CSS (custom dark theme)
-- Zustand (state management + localStorage persistence)
-- Lucide React (icons)
-- Recharts (charts)
-- CoinGecko API (live crypto prices)
-- OpenRouter API (AI chatbot using free Llama 3.1 model)
+---
 
-## How The AI Works
+## Android APK
 
-The chatbot sends your financial snapshot (balances, income, goals) as context to a free LLM via OpenRouter. It:
-- Knows your total portfolio
-- Can answer "should I save or invest?"
-- Suggests what to do with idle cash
-- Helps set realistic goals
-- Never stores your data externally — API calls are stateless
+The app is a PWA, so it installs from the browser via **Add to Home Screen**. For a real installable APK, see [`BUILD_APK.md`](BUILD_APK.md) — the short version:
 
-## Privacy
+```bash
+npm run build
+npx cap sync
+npx cap open android   # then Build → Generate App Bundles or APKs → Generate APKs
+```
 
-- Your data is encrypted and stored securely via Supabase
-- AI chatbot sends a financial summary to OpenRouter only during active chat
-- Live crypto prices fetched from CoinGecko (no personal data sent)
-- Delete everything anytime from Settings → "Delete All Data"
+---
+
+## AI assistant (optional)
+
+The AI advisor runs through a **Supabase Edge Function**, not the browser, so your OpenRouter key is never exposed to clients. Deploy it with:
+
+```bash
+supabase functions deploy chat --no-verify-jwt --use-api
+supabase secrets set OPENROUTER_API_KEY=your_key_here
+```
+
+It tries several free models in order and degrades gracefully if they're all rate-limited. The app works fully without it.
+
+---
+
+## Tech stack
+
+React 18 · TypeScript · Vite 5 · Tailwind CSS · Zustand · Recharts · Supabase (auth + Postgres + Edge Functions) · Capacitor · CoinGecko API
+
+Full architectural detail and rationale in [`TECH_STACK.md`](TECH_STACK.md).
+
+---
+
+## Privacy and honesty
+
+- Your rows are readable only by you, enforced in Postgres by row-level security — not just by app code.
+- The AI assistant receives a summary of your finances only while you're actively chatting, and nothing is stored on OpenRouter's side.
+- CoinGecko receives no personal data — only the coin symbols being priced.
+- **Settings → "Delete All Data & Log Out"** wipes everything.
+
+RS Finance does not connect to your bank, move money, or execute trades. Balances are entered by you. Yield and risk figures are estimates to help you think, not financial advice. See [`src/pages/Terms.tsx`](src/pages/Terms.tsx) for the full disclaimer.
