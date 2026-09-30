@@ -1,4 +1,8 @@
-const CACHE_NAME = 'apex-finance-v1';
+// Bump this string on any release that changes cached assets. The activate
+// handler below deletes every cache whose name != CACHE_NAME, so bumping it
+// purges stale entries — including the old 'apex-finance-v1' cache from
+// before the RS Finance rebrand.
+const CACHE_NAME = 'rs-finance-v2';
 const STATIC_ASSETS = [
   '/',
   '/manifest.json',

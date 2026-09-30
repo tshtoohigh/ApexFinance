@@ -1,0 +1,36 @@
+[build]
+  command = "npm run build"
+  publish = "dist"
+
+# ---------------------------------------------------------------------------
+# SPA fallback.
+#
+# The app uses BrowserRouter, so paths like /assets and /goals exist only in
+# the client. Without this, a refresh or a shared link returns 404 because
+# there is no /assets file on disk.
+#
+# Netlify checks for a real file before applying this rule, so /sw.js,
+# /manifest.json and /assets/*.js are still served normally.
+# ---------------------------------------------------------------------------
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+
+# Never let the CDN pin an old service worker or manifest — that is how a
+# deploy appears to "not update".
+[[headers]]
+  for = "/sw.js"
+  [headers.values]
+    Cache-Control = "public, max-age=0, must-revalidate"
+
+[[headers]]
+  for = "/manifest.json"
+  [headers.values]
+    Cache-Control = "public, max-age=0, must-revalidate"
+
+# Vite hashes these filenames, so they are safe to cache forever.
+[[headers]]
+  for = "/assets/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
